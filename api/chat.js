@@ -6,8 +6,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    // TUTAJ JEST ZMIANA: używamy modelu gemini-1.5-flash-latest
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+    // SUKCES: Używamy najnowszego, aktywnego modelu Gemini 2.5 Flash
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
