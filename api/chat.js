@@ -1,10 +1,8 @@
 export default async function handler(req, res) {
-  // Pobieramy klucz z Vercela
   const apiKey = process.env.GEMINI_API_KEY;
 
-  // ZMIENIONY KOMUNIKAT - jeśli zobaczysz to na telefonie, kod się zaktualizował!
   if (!apiKey) {
-    return res.status(500).json({ error: 'HALO VERCEL! Tu nowy serwer. Nadal nie widzę klucza GEMINI_API_KEY w ustawieniach!' });
+    return res.status(500).json({ error: 'Brak klucza w ustawieniach Vercel.' });
   }
 
   try {
@@ -17,9 +15,15 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
+
+    // SUPER DETEKTYW: Jeśli Google odrzuci zapytanie, wyrzucamy ich własny komunikat!
+    if (data.error) {
+      return res.status(500).json({ error: `Odrzucono przez Google: ${data.error.message}` });
+    }
+
     return res.status(200).json({ reply: data.candidates[0].content.parts[0].text });
 
   } catch (error) {
-    return res.status(500).json({ error: 'Błąd połączenia z Google AI' });
+    return res.status(500).json({ error: `Awaria kodu serwera: ${error.message}` });
   }
 }
