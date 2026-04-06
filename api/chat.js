@@ -6,7 +6,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+    // TUTAJ JEST ZMIANA: używamy modelu gemini-1.5-flash-latest
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -16,14 +17,13 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // SUPER DETEKTYW: Jeśli Google odrzuci zapytanie, wyrzucamy ich własny komunikat!
     if (data.error) {
-      return res.status(500).json({ error: `Odrzucono przez Google: ${data.error.message}` });
+      return res.status(500).json({ error: `Błąd Google: ${data.error.message}` });
     }
 
     return res.status(200).json({ reply: data.candidates[0].content.parts[0].text });
 
   } catch (error) {
-    return res.status(500).json({ error: `Awaria kodu serwera: ${error.message}` });
+    return res.status(500).json({ error: `Awaria serwera: ${error.message}` });
   }
 }
