@@ -393,7 +393,8 @@ function ChatAssistantView() {
       let reply = "";
 
       if (isVercel) {
-        const res = await fetch('/api/gemini', {
+        // ZMIANA: Uderzamy do /api/chat zamiast /api/gemini
+        const res = await fetch('/api/chat', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({ prompt: `Jesteś bardzo pomocnym, przyjaznym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk). Udziel krótkiej, zwięzłej porady. Pytanie turysty: ${msg}` })
@@ -644,8 +645,9 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         let data;
 
         if (isVercel) {
+            // ZMIANA: Uderzamy do /api/chat zamiast /api/gemini
             const payload = { prompt: hiddenInstruction, instances: { prompt: hiddenInstruction }, parameters: { sampleCount: 1 } };
-            const res = await fetch('/api/gemini', {
+            const res = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ payload, type: 'image' })
