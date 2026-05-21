@@ -4,22 +4,22 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity
 } from 'lucide-react';
 
 // --- BAZA DANYCH SZLAKÓW (BESKID ŚLĄSKI) ---
 const TRAILS_DATA = [
-  { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", mapX: "30%", mapY: "40%", pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
-  { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", mapX: "40%", mapY: "30%", pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
-  { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", mapX: "35%", mapY: "25%", pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
-  { id: 4, location: "Wisła", name: "Barania Góra (Białą Wisełką)", color: "bg-blue-500", distance: "6.5 km", time: "2h 30m", difficulty: "Średnia", elevation: "620 m", transport: "Autobus (Wisła Czarne Fojtula).", description: "Szlak wzdłuż potoku. Prowadzi przez Kaskady Rodła.", mapX: "60%", mapY: "80%", pois: ['Kaskady Rodła'], familyFriendly: false },
-  { id: 5, location: "Wisła", name: "Trzy Kopce Wiślańskie", color: "bg-yellow-400", distance: "4.8 km", time: "1h 45m", difficulty: "Łatwa", elevation: "350 m", transport: "Pociąg do 'Wisła Uzdrowisko'.", description: "Widokowa trasa z przerwą w Telesforówce.", mapX: "50%", mapY: "65%", pois: ['Telesforówka'], familyFriendly: true },
-  { id: 6, location: "Szczyrk", name: "Skrzyczne", color: "bg-blue-500", distance: "5.2 km", time: "2h 15m", difficulty: "Trudna", elevation: "700 m", transport: "Autobus 'Szczyrk Centrum'.", description: "Wymagające podejście na najwyższy szczyt Beskidu Śląskiego.", mapX: "80%", mapY: "45%", pois: ['Schronisko PTTK'], familyFriendly: false },
-  { id: 7, location: "Szczyrk", name: "Malinowska Skała", color: "bg-red-500", distance: "4.0 km", time: "1h 20m", difficulty: "Łatwa", elevation: "220 m", transport: "Autobus 'Przełęcz Salmopolska'.", description: "Widokowy szlak grzbietowy z formacją skalną.", mapX: "70%", mapY: "60%", pois: ['Malinowska Skała'], familyFriendly: true },
-  { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", mapX: "55%", mapY: "20%", pois: ['Ranczo Błatnia'], familyFriendly: false },
-  { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", mapX: "40%", mapY: "60%", pois: ['Schronisko Soszów'], familyFriendly: true },
-  { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", mapX: "75%", mapY: "25%", pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
-  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", mapX: "35%", mapY: "85%", pois: ['Punkt Widokowy'], familyFriendly: true }
+  { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", mapX: "30%", mapY: "40%", pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
+  { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", mapX: "40%", mapY: "30%", pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
+  { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Karczma Ustronianka", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", mapX: "35%", mapY: "25%", pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
+  { id: 4, location: "Wisła", name: "Barania Góra (Białą Wisełką)", color: "bg-blue-500", distance: "6.5 km", time: "2h 30m", difficulty: "Średnia", elevation: "620 m", transport: "Autobus (Wisła Czarne Fojtula).", food: "Brak gastronomii na szlaku - weź prowiant!", description: "Szlak wzdłuż potoku. Prowadzi przez Kaskady Rodła.", mapX: "60%", mapY: "80%", pois: ['Kaskady Rodła'], familyFriendly: false },
+  { id: 5, location: "Wisła", name: "Trzy Kopce Wiślańskie", color: "bg-yellow-400", distance: "4.8 km", time: "1h 45m", difficulty: "Łatwa", elevation: "350 m", transport: "Pociąg do 'Wisła Uzdrowisko'.", food: "Telesforówka (słynne wypieki)", description: "Widokowa trasa z przerwą w Telesforówce.", mapX: "50%", mapY: "65%", pois: ['Telesforówka'], familyFriendly: true },
+  { id: 6, location: "Szczyrk", name: "Skrzyczne", color: "bg-blue-500", distance: "5.2 km", time: "2h 15m", difficulty: "Trudna", elevation: "700 m", transport: "Autobus 'Szczyrk Centrum'.", food: "Schronisko PTTK Skrzyczne", description: "Wymagające podejście na najwyższy szczyt Beskidu Śląskiego.", mapX: "80%", mapY: "45%", pois: ['Schronisko PTTK'], familyFriendly: false },
+  { id: 7, location: "Szczyrk", name: "Malinowska Skała", color: "bg-red-500", distance: "4.0 km", time: "1h 20m", difficulty: "Łatwa", elevation: "220 m", transport: "Autobus 'Przełęcz Salmopolska'.", food: "Najbliżej: Schronisko na Skrzycznem", description: "Widokowy szlak grzbietowy z formacją skalną.", mapX: "70%", mapY: "60%", pois: ['Malinowska Skała'], familyFriendly: true },
+  { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", food: "Ranczo Błatnia, Schronisko PTTK", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", mapX: "55%", mapY: "20%", pois: ['Ranczo Błatnia'], familyFriendly: false },
+  { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", food: "Schronisko na Soszowie, Lepiarzówka", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", mapX: "40%", mapY: "60%", pois: ['Schronisko Soszów'], familyFriendly: true },
+  { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", food: "Schronisko Klimczok, Szyndzielnia", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", mapX: "75%", mapY: "25%", pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
+  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", mapX: "35%", mapY: "85%", pois: ['Punkt Widokowy'], familyFriendly: true }
 ];
 
 export default function App() {
@@ -42,6 +42,14 @@ export default function App() {
     if (activeTrip && activeTrip.id === tripId) {
         setActiveTrip(prev => ({ ...prev, media: [...prev.media, newMediaUrl] }));
     }
+  };
+
+  // NOWOŚĆ: Zapisywanie wygenerowanego planu AI
+  const handleSaveAIPlan = (plan) => {
+    const today = new Date().toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
+    const newTrip = { id: Date.now(), name: plan.title, date: today, duration: `${plan.days.length} dni`, media: [] };
+    setSavedTrips(prev => [newTrip, ...prev]);
+    setActiveTab('journal');
   };
 
   return (
@@ -92,8 +100,8 @@ export default function App() {
       <main className="flex-1 overflow-y-auto pt-16 md:pt-0 pb-20 md:pb-0 relative scroll-smooth">
         {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} />}
         {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} />}
-        {activeTab === 'ai' && <AIPlannerView />}
-        {activeTab === 'journal' && <JournalView savedTrips={savedTrips} />}
+        {activeTab === 'ai' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
+        {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
       </main>
 
       {/* --- MOBILE BOTTOM NAV --- */}
@@ -300,7 +308,7 @@ function TrailsView({ onAddTrip }) {
 // ==========================================
 // WIDOK: KREATOR WYCIECZEK AI (Prawdziwa logika)
 // ==========================================
-function AIPlannerView() {
+function AIPlannerView({ onSavePlan }) {
   const [step, setStep] = useState(1);
   const [preferences, setPreferences] = useState({ days: 1, difficulty: 'easy', companions: 'adults' });
   const [isGenerating, setIsGenerating] = useState(false);
@@ -312,12 +320,18 @@ function AIPlannerView() {
     setTimeout(() => {
       let selectedTrails = [];
       if (preferences.companions === 'kids') {
-        selectedTrails = TRAILS_DATA.filter(t => t.familyFriendly).slice(0, preferences.days);
+        selectedTrails = TRAILS_DATA.filter(t => t.familyFriendly);
       } else if (preferences.difficulty === 'hard') {
-        selectedTrails = TRAILS_DATA.filter(t => t.difficulty !== 'Bardzo Łatwa').slice(0, preferences.days);
+        selectedTrails = TRAILS_DATA.filter(t => t.difficulty !== 'Bardzo Łatwa');
       } else {
-        selectedTrails = TRAILS_DATA.slice(0, preferences.days);
+        selectedTrails = TRAILS_DATA;
       }
+      
+      // Powielanie szlaków, jeśli wybrano więcej dni niż jest w bazie
+      while(selectedTrails.length < preferences.days) {
+          selectedTrails = [...selectedTrails, ...selectedTrails];
+      }
+      selectedTrails = selectedTrails.slice(0, preferences.days);
 
       setGeneratedPlan({
         title: `Twój idealny wyjazd (${preferences.days} dni)`,
@@ -344,9 +358,9 @@ function AIPlannerView() {
           <div className="space-y-8 animate-in fade-in">
             <div>
               <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><CalendarDays size={20} className="text-emerald-500"/> Ile dni spędzisz w górach?</h3>
-              <div className="flex gap-3">
-                {[1, 2, 3].map(num => (
-                  <button key={num} onClick={() => setPreferences({...preferences, days: num})} className={`flex-1 py-3 rounded-xl font-bold border-2 transition-all ${preferences.days === num ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>{num} {num===1?'Dzień':'Dni'}</button>
+              <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
+                  <button key={num} onClick={() => setPreferences({...preferences, days: num})} className={`py-3 rounded-xl font-bold border-2 transition-all ${preferences.days === num ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>{num}</button>
                 ))}
               </div>
             </div>
@@ -402,24 +416,40 @@ function AIPlannerView() {
                    </div>
                    
                    {/* Karta */}
-                   <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ml-4 md:ml-0">
+                   <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ml-4 md:ml-0 hover:border-emerald-300 transition-colors">
                      <div className="flex items-center gap-2 mb-2">
                        <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Dzień {idx + 1}</span>
                        <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] font-bold text-slate-500">{trail.location}</span>
                      </div>
                      <h4 className="font-bold text-lg text-slate-800 mb-2 leading-tight">{trail.name}</h4>
                      <p className="text-sm text-slate-600 mb-4">{trail.description}</p>
+                     
+                     {/* POI: Jedzenie i Dojazd */}
+                     <div className="flex flex-col gap-2 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div className="flex items-start gap-2">
+                           <Utensils size={14} className="text-amber-600 shrink-0 mt-0.5" />
+                           <span className="text-xs text-slate-700 leading-tight"><b>Jedzenie:</b> {trail.food}</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                           <Train size={14} className="text-blue-600 shrink-0 mt-0.5" />
+                           <span className="text-xs text-slate-700 leading-tight"><b>Dojazd:</b> {trail.transport}</span>
+                        </div>
+                     </div>
+
                      <div className="flex flex-wrap gap-2">
-                       <span className="bg-slate-50 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><History size={12}/> {trail.time}</span>
-                       <span className="bg-slate-50 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><Mountain size={12}/> {trail.elevation}</span>
+                       <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><History size={12}/> {trail.time}</span>
+                       <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><Mountain size={12}/> {trail.elevation}</span>
                      </div>
                    </div>
                 </div>
               ))}
             </div>
 
-            <div className="flex gap-4 pt-4 border-t border-slate-100">
-               <button onClick={() => setStep(1)} className="w-full bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition">Stwórz nowy plan</button>
+            <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+               <button onClick={() => onSavePlan(generatedPlan)} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-emerald-700 transition shadow-lg flex justify-center items-center gap-2 btn-bounce">
+                   <History size={20} /> Zapisz ten plan w Pamiętniku
+               </button>
+               <button onClick={() => setStep(1)} className="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold hover:bg-slate-200 transition">Stwórz nowy plan</button>
             </div>
           </div>
         )}
@@ -435,6 +465,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMovie, setShowMovie] = useState(false);
+  const [isTracking, setIsTracking] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (e) => {
@@ -496,11 +527,20 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                           <h2 className="font-black text-3xl md:text-4xl text-slate-800">{activeTrip.name}</h2>
                           <p className="text-slate-500 flex items-center gap-2 mt-2 font-medium"><CalendarDays size={18}/> {activeTrip.date} • <History size={18}/> {activeTrip.duration}</p>
                       </div>
-                      {activeTrip.media.length > 0 && (
-                          <button onClick={() => setShowMovie(true)} className="bg-slate-900 text-white px-6 py-4 rounded-xl font-bold flex items-center gap-3 hover:bg-slate-800 shadow-xl transition transform hover:scale-105 btn-bounce">
-                              <Film size={24} className="text-emerald-400" /> Zrób Film!
+                      
+                      {/* NOWOŚĆ: Kontrolki rejestrowania i tworzenia filmu */}
+                      <div className="flex flex-wrap gap-3">
+                          <button onClick={() => setIsTracking(!isTracking)} className={`px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md border btn-bounce ${isTracking ? 'bg-red-50 text-red-600 border-red-200' : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'}`}>
+                              <Activity size={20} className={isTracking ? "animate-pulse" : ""} />
+                              {isTracking ? 'Zatrzymaj GPS' : 'Rejestruj trasę'}
                           </button>
-                      )}
+                          
+                          {activeTrip.media.length > 0 && (
+                              <button onClick={() => setShowMovie(true)} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 hover:bg-slate-800 shadow-xl transition transform hover:scale-105 btn-bounce">
+                                  <Film size={20} className="text-emerald-400" /> Zrób Film!
+                              </button>
+                          )}
+                      </div>
                   </div>
 
                   {/* GALERIA */}
