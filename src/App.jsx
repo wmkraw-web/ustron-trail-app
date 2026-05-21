@@ -4,7 +4,7 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle
 } from 'lucide-react';
 
 // --- BAZA DANYCH SZLAKÓW (BESKID ŚLĄSKI) ---
@@ -23,7 +23,7 @@ const TRAILS_DATA = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home');
+  const [activeTab, setActiveTab] = useState('home'); // Tabs: home, trails, planner, chat, journal
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [savedTrips, setSavedTrips] = useState([
     { id: 101, name: "Zdobycie Czantorii", date: "12 Sierpnia 2025", duration: "2h 10m", media: [] }
@@ -44,7 +44,6 @@ export default function App() {
     }
   };
 
-  // NOWOŚĆ: Zapisywanie wygenerowanego planu AI
   const handleSaveAIPlan = (plan) => {
     const today = new Date().toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
     const newTrip = { id: Date.now(), name: plan.title, date: today, duration: `${plan.days.length} dni`, media: [] };
@@ -70,7 +69,8 @@ export default function App() {
         <nav className="flex-1 px-4 py-6 space-y-2">
           <SidebarItem icon={<Mountain />} label="Pulpit Główny" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
           <SidebarItem icon={<Map />} label="Mapa i Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
-          <SidebarItem icon={<Sparkles />} label="Planer AI" isActive={activeTab === 'ai'} onClick={() => setActiveTab('ai')} />
+          <SidebarItem icon={<CalendarDays />} label="Planer Trasy" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
+          <SidebarItem icon={<MessageCircle />} label="Asystent AI" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
           <SidebarItem icon={<History />} label="Pamiętnik Wypraw" isActive={activeTab === 'journal'} onClick={() => { setActiveTab('journal'); setActiveTrip(null); }} />
         </nav>
 
@@ -100,15 +100,17 @@ export default function App() {
       <main className="flex-1 overflow-y-auto pt-16 md:pt-0 pb-20 md:pb-0 relative scroll-smooth">
         {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} />}
         {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} />}
-        {activeTab === 'ai' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
+        {activeTab === 'planner' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
+        {activeTab === 'chat' && <ChatAssistantView />}
         {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
       </main>
 
-      {/* --- MOBILE BOTTOM NAV --- */}
+      {/* --- MOBILE BOTTOM NAV (Przywrócone 5 elementów) --- */}
       <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-30">
         <NavItem icon={<Mountain />} label="Start" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <NavItem icon={<Map />} label="Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
-        <NavItem icon={<Sparkles />} label="Planer AI" isActive={activeTab === 'ai'} onClick={() => setActiveTab('ai')} />
+        <NavItem icon={<CalendarDays />} label="Planer" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
+        <NavItem icon={<MessageCircle />} label="Asystent" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
         <NavItem icon={<History />} label="Pamiętnik" isActive={activeTab === 'journal'} onClick={() => { setActiveTab('journal'); setActiveTrip(null); }} />
       </nav>
 
@@ -156,9 +158,9 @@ function HomeView({ setActiveTab }) {
       <div>
         <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">Szybkie menu</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <QuickActionButton icon={<Sparkles />} label="Kreator Trasy" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('ai')} />
+          <QuickActionButton icon={<CalendarDays />} label="Kreator Trasy" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('planner')} />
+          <QuickActionButton icon={<MessageCircle />} label="Asystent Chat" color="bg-purple-100 text-purple-700" iconColor="bg-purple-500" onClick={() => setActiveTab('chat')} />
           <QuickActionButton icon={<Map />} label="Mapa Szlaków" color="bg-orange-100 text-orange-700" iconColor="bg-orange-500" onClick={() => setActiveTab('trails')} />
-          <QuickActionButton icon={<TreePine />} label="Atrakcje w dolinie" color="bg-blue-100 text-blue-700" iconColor="bg-blue-500" onClick={() => setActiveTab('trails')} />
           <QuickActionButton icon={<Coffee />} label="Schroniska" color="bg-amber-100 text-amber-800" iconColor="bg-amber-500" onClick={() => setActiveTab('trails')} />
         </div>
       </div>
@@ -192,28 +194,23 @@ function HomeView({ setActiveTab }) {
 }
 
 // ==========================================
-// WIDOK: SZLAKI I MAPA
+// WIDOK: SZLAKI I MAPA (Poprawione przełączanie Mobile)
 // ==========================================
 function TrailsView({ onAddTrip }) {
   const [activeFilter, setActiveFilter] = useState('Wszystkie');
   const [selectedPin, setSelectedPin] = useState(null);
-  const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); // Do przełączania na smartfonach
+  const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
   
   const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Brenna'];
   const filteredTrails = activeFilter === 'Wszystkie' ? TRAILS_DATA : TRAILS_DATA.filter(t => t.location === activeFilter);
 
   return (
-    <div className="h-full flex flex-col md:p-6 p-0 max-w-7xl mx-auto">
+    <div className="h-full flex flex-col md:p-6 p-0 max-w-7xl mx-auto relative">
       
       {/* Nagłówek i Filtry */}
-      <div className="bg-white md:bg-transparent p-4 md:p-0 border-b md:border-none border-slate-200 shrink-0">
+      <div className="bg-white md:bg-transparent p-4 md:p-0 border-b md:border-none border-slate-200 shrink-0 z-20">
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-2xl text-slate-800">Eksploruj Region</h2>
-          {/* Przełącznik tylko na mobile */}
-          <div className="md:hidden bg-slate-100 p-1 rounded-xl flex gap-1">
-            <button onClick={() => setIsMapVisibleOnMobile(false)} className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${!isMapVisibleOnMobile ? 'bg-white shadow text-emerald-600' : 'text-slate-500'}`}>Lista</button>
-            <button onClick={() => setIsMapVisibleOnMobile(true)} className={`px-4 py-1.5 rounded-lg text-sm font-bold transition ${isMapVisibleOnMobile ? 'bg-white shadow text-emerald-600' : 'text-slate-500'}`}>Mapa</button>
-          </div>
         </div>
         
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -229,11 +226,11 @@ function TrailsView({ onAddTrip }) {
         </div>
       </div>
 
-      {/* Kontener dwukolumnowy na Desktopie */}
+      {/* Kontener dwukolumnowy */}
       <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden md:mt-2 relative">
         
-        {/* LEWA: Lista Szlaków (ukryta na mobile gdy mapa jest aktywna) */}
-        <div className={`w-full md:w-1/2 lg:w-5/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-24 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
+        {/* LEWA: Lista Szlaków */}
+        <div className={`w-full md:w-1/2 lg:w-5/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-32 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
           {filteredTrails.map(trail => (
             <div key={trail.id} 
               onMouseEnter={() => setSelectedPin(trail)}
@@ -263,22 +260,20 @@ function TrailsView({ onAddTrip }) {
               </div>
 
               <div className="flex gap-2">
-                <button className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition"><Navigation size={16} /> Mapa</button>
+                <button onClick={(e) => { e.stopPropagation(); setIsMapVisibleOnMobile(true); setSelectedPin(trail); }} className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2.5 rounded-xl text-sm font-bold flex md:hidden items-center justify-center gap-2 transition"><MapPin size={16} /> Zobacz na Mapie</button>
                 <button onClick={(e) => { e.stopPropagation(); onAddTrip(trail); }} className="flex-1 bg-emerald-600 text-white hover:bg-emerald-500 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition"><Plus size={16} /> Zapisz</button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* PRAWA: Duża Mapa (na mobile ukryta gdy widoczna lista) */}
+        {/* PRAWA: Duża Mapa */}
         <div className={`w-full md:w-1/2 lg:w-7/12 relative bg-emerald-50 rounded-none md:rounded-3xl border border-emerald-200 overflow-hidden shadow-inner flex flex-col min-h-[500px] h-full ${!isMapVisibleOnMobile ? 'hidden md:flex' : 'flex'}`}>
-          {/* Tło mapy topograficznej (Wektor) */}
           <div className="absolute inset-0 opacity-20 pointer-events-none">
             <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="topo" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><path d="M10,10 Q40,40 90,10 M20,30 Q50,60 90,30 M10,50 Q40,80 80,50 M30,70 Q60,90 90,70" fill="none" stroke="#059669" strokeWidth="1" opacity="0.5"/><path d="M0,20 Q30,50 80,20 M10,40 Q40,70 80,40" fill="none" stroke="#047857" strokeWidth="0.5" opacity="0.3"/></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#topo)" /></svg>
           </div>
           <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-emerald-800 shadow-sm border border-emerald-100 z-10">Mapa Beskidu Śląskiego</div>
 
-          {/* Piny na mapie */}
           <div className="relative w-full h-full">
             {filteredTrails.map(trail => (
               <div 
@@ -299,14 +294,129 @@ function TrailsView({ onAddTrip }) {
             ))}
           </div>
         </div>
+      </div>
 
+      {/* Pływający Przycisk Mapa/Lista na Smartfony (Styl Google Maps) */}
+      <div className="md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
+          <button 
+              onClick={() => setIsMapVisibleOnMobile(!isMapVisibleOnMobile)} 
+              className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 font-bold hover:scale-105 transition-transform"
+          >
+              {isMapVisibleOnMobile ? <><List size={18}/> Pokaż Listę</> : <><Map size={18}/> Pokaż Mapę</>}
+          </button>
+      </div>
+
+    </div>
+  );
+}
+
+// ==========================================
+// WIDOK: OSOBISTY ASYSTENT CHAT (Przywrócony!)
+// ==========================================
+function ChatAssistantView() {
+  const [msg, setMsg] = useState("");
+  const [chat, setChat] = useState([{ role: 'ai', text: 'Cześć! Jestem Twoim osobistym asystentem górskim. Potrzebujesz porady jak się ubrać na Równicę, albo gdzie zjemy najlepszego pstrąga?' }]);
+  const [isLoading, setIsLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
+
+  const handleSend = async () => {
+    if (!msg.trim()) return;
+    const newChat = [...chat, { role: 'user', text: msg }];
+    setChat(newChat);
+    setMsg("");
+    setIsLoading(true);
+
+    try {
+      const isVercel = window.location.hostname.includes('vercel.app');
+      let reply = "";
+
+      if (isVercel) {
+        // Próba uderzenia do Vercela (Wymaga OPENAI_API_KEY w ustawieniach serwera)
+        const res = await fetch('/api/gemini', {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({ prompt: `Jesteś bardzo pomocnym, przyjaznym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk). Udziel krótkiej, zwięzłej porady. Pytanie turysty: ${msg}` })
+        });
+        
+        if (!res.ok) throw new Error("Vercel error");
+        const data = await res.json();
+        reply = data.candidates?.[0]?.content?.parts?.[0]?.text || data.choices?.[0]?.message?.content || "Nie zrozumiałem, spróbuj jeszcze raz.";
+      } else {
+        // Tryb testowy Canvas (bezpłatny, działa tylko tutaj)
+        const apiKey = ""; 
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+        const res = await fetch(url, {
+           method: 'POST',
+           headers: { 'Content-Type': 'application/json' },
+           body: JSON.stringify({
+              contents: [{ parts: [{ text: msg }] }],
+              systemInstruction: { parts: [{ text: "Jesteś bardzo pomocnym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk). Udzielaj krótkich, przyjaznych porad." }] }
+           })
+        });
+        if (!res.ok) throw new Error("Canvas error");
+        const data = await res.json();
+        reply = data.candidates[0].content.parts[0].text;
+      }
+
+      setChat([...newChat, { role: 'ai', text: reply }]);
+    } catch (e) {
+      console.error(e);
+      setChat([...newChat, { role: 'ai', text: "⚠️ Błąd połączenia z serwerem. Jeśli jesteś na Vercelu, upewnij się, że dodałeś klucz 'OPENAI_API_KEY' w zakładce Settings > Environment Variables!" }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-full bg-slate-50 max-w-4xl mx-auto relative">
+      <div className="bg-purple-900 p-6 text-white shrink-0 shadow-md z-10 flex items-center gap-4">
+         <div className="bg-purple-500 p-3 rounded-full"><MessageCircle size={24} /></div>
+         <div>
+            <h2 className="text-2xl font-black">Asystent Turysty</h2>
+            <p className="text-purple-200 text-sm">Zawsze gotowy do pomocy</p>
+         </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-28 custom-scrollbar">
+        {chat.map((c, i) => (
+          <div key={i} className={`flex ${c.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div className={`p-4 rounded-2xl max-w-[85%] text-sm leading-relaxed shadow-sm ${c.role === 'user' ? 'bg-emerald-600 text-white rounded-br-sm' : 'bg-white border border-slate-200 text-slate-800 rounded-bl-sm'}`}>
+               {c.text}
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+             <div className="bg-white border border-slate-200 p-4 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-2">
+                <Loader2 size={16} className="animate-spin text-purple-600" /> <span className="text-slate-500 text-sm">Asystent pisze...</span>
+             </div>
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
+
+      <div className="absolute bottom-0 left-0 w-full p-4 bg-slate-50 border-t border-slate-200 pb-safe">
+        <div className="flex gap-2 bg-white rounded-full p-2 border border-slate-300 shadow-sm">
+          <input 
+            value={msg} 
+            onChange={e => setMsg(e.target.value)} 
+            onKeyPress={e => e.key === 'Enter' && handleSend()}
+            className="flex-1 bg-transparent px-4 outline-none text-slate-800" 
+            placeholder="Zapytaj asystenta..." 
+          />
+          <button onClick={handleSend} disabled={isLoading || !msg.trim()} className="bg-purple-600 hover:bg-purple-500 disabled:bg-slate-300 text-white p-3 rounded-full transition-colors"><Send size={18}/></button>
+        </div>
       </div>
     </div>
   );
 }
 
 // ==========================================
-// WIDOK: KREATOR WYCIECZEK AI (Prawdziwa logika)
+// WIDOK: KREATOR WYCIECZEK AI 
 // ==========================================
 function AIPlannerView({ onSavePlan }) {
   const [step, setStep] = useState(1);
@@ -316,7 +426,6 @@ function AIPlannerView({ onSavePlan }) {
 
   const generatePlan = () => {
     setIsGenerating(true);
-    // Symulacja "myślenia AI" i dobierania szlaków z bazy danych
     setTimeout(() => {
       let selectedTrails = [];
       if (preferences.companions === 'kids') {
@@ -327,7 +436,6 @@ function AIPlannerView({ onSavePlan }) {
         selectedTrails = TRAILS_DATA;
       }
       
-      // Powielanie szlaków, jeśli wybrano więcej dni niż jest w bazie
       while(selectedTrails.length < preferences.days) {
           selectedTrails = [...selectedTrails, ...selectedTrails];
       }
@@ -344,16 +452,15 @@ function AIPlannerView({ onSavePlan }) {
   };
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto h-full flex flex-col">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto h-full flex flex-col pb-24 md:pb-8">
       <div className="bg-emerald-900 rounded-3xl p-6 md:p-10 text-white shadow-xl relative overflow-hidden shrink-0 mb-6">
-        <div className="absolute -right-10 -bottom-10 opacity-20"><Sparkles size={150} /></div>
-        <h2 className="text-2xl md:text-4xl font-black mb-2 relative z-10">Kreator Trasy AI</h2>
+        <div className="absolute -right-10 -bottom-10 opacity-20"><CalendarDays size={150} /></div>
+        <h2 className="text-2xl md:text-4xl font-black mb-2 relative z-10">Kreator Trasy</h2>
         <p className="text-emerald-200 max-w-lg relative z-10">Zamiast przeglądać setki map, powiedz mi czego potrzebujesz. Dobiorę dla Ciebie idealny harmonogram wyjazdu krok po kroku.</p>
       </div>
 
       <div className="flex-1 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-10 overflow-y-auto custom-scrollbar">
-        
-        {/* KROK 1: Pytania */}
+        {/* KROK 1 */}
         {step === 1 && (
           <div className="space-y-8 animate-in fade-in">
             <div>
@@ -378,7 +485,7 @@ function AIPlannerView({ onSavePlan }) {
           </div>
         )}
 
-        {/* KROK 2: Poziom i Generowanie */}
+        {/* KROK 2 */}
         {step === 2 && (
           <div className="space-y-8 animate-in slide-in-from-right-8">
              <div>
@@ -393,13 +500,13 @@ function AIPlannerView({ onSavePlan }) {
             <div className="flex gap-4">
                <button onClick={() => setStep(1)} className="px-6 py-4 rounded-2xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">Wróć</button>
                <button onClick={generatePlan} disabled={isGenerating} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-lg hover:bg-slate-800 transition shadow-lg flex justify-center items-center gap-2">
-                 {isGenerating ? <><Loader2 className="animate-spin" size={24}/> Obliczam optymalną trasę...</> : <><Sparkles size={20}/> Stwórz Mój Plan</>}
+                 {isGenerating ? <><Loader2 className="animate-spin" size={24}/> Obliczam...</> : <><Sparkles size={20}/> Stwórz Plan</>}
                </button>
             </div>
           </div>
         )}
 
-        {/* KROK 3: Wynik AI */}
+        {/* KROK 3 */}
         {step === 3 && generatedPlan && (
           <div className="animate-in zoom-in-95 duration-500 space-y-6">
             <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
@@ -410,12 +517,8 @@ function AIPlannerView({ onSavePlan }) {
             <div className="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent">
               {generatedPlan.days.map((trail, idx) => (
                 <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
-                   {/* Znacznik na osi czasu */}
-                   <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-900 text-white font-bold shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-md z-10">
-                     {idx + 1}
-                   </div>
+                   <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white bg-slate-900 text-white font-bold shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-md z-10">{idx + 1}</div>
                    
-                   {/* Karta */}
                    <div className="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] bg-white p-5 rounded-2xl shadow-sm border border-slate-200 ml-4 md:ml-0 hover:border-emerald-300 transition-colors">
                      <div className="flex items-center gap-2 mb-2">
                        <span className="text-[10px] font-black uppercase text-emerald-600 tracking-wider">Dzień {idx + 1}</span>
@@ -424,7 +527,6 @@ function AIPlannerView({ onSavePlan }) {
                      <h4 className="font-bold text-lg text-slate-800 mb-2 leading-tight">{trail.name}</h4>
                      <p className="text-sm text-slate-600 mb-4">{trail.description}</p>
                      
-                     {/* POI: Jedzenie i Dojazd */}
                      <div className="flex flex-col gap-2 mb-4 bg-slate-50 p-3 rounded-xl border border-slate-100">
                         <div className="flex items-start gap-2">
                            <Utensils size={14} className="text-amber-600 shrink-0 mt-0.5" />
@@ -447,9 +549,9 @@ function AIPlannerView({ onSavePlan }) {
 
             <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
                <button onClick={() => onSavePlan(generatedPlan)} className="w-full bg-emerald-600 text-white py-4 rounded-2xl font-black text-lg hover:bg-emerald-700 transition shadow-lg flex justify-center items-center gap-2 btn-bounce">
-                   <History size={20} /> Zapisz ten plan w Pamiętniku
+                   <History size={20} /> Zapisz w Pamiętniku
                </button>
-               <button onClick={() => setStep(1)} className="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold hover:bg-slate-200 transition">Stwórz nowy plan</button>
+               <button onClick={() => setStep(1)} className="w-full bg-slate-100 text-slate-600 py-3 rounded-2xl font-bold hover:bg-slate-200 transition">Nowy plan</button>
             </div>
           </div>
         )}
@@ -459,7 +561,7 @@ function AIPlannerView({ onSavePlan }) {
 }
 
 // ==========================================
-// WIDOK: PAMIĘTNIK
+// WIDOK: PAMIĘTNIK I MALARZ AI (Poprawiony Fallback Vercel)
 // ==========================================
 function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const [aiPrompt, setAiPrompt] = useState("");
@@ -479,44 +581,44 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const handleGenerateAI = async () => {
     if (!aiPrompt.trim()) return;
     setIsGenerating(true);
+    
     try {
+        const isVercel = window.location.hostname.includes('vercel.app');
         const hiddenInstruction = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.`;
-        const payload = {
-            prompt: hiddenInstruction,
-            instances: { prompt: hiddenInstruction },
-            parameters: { sampleCount: 1 }
-        };
-        
         let data;
-        try {
-            // Najpierw próbujemy połączyć się z serwerem Vercel (jeśli istnieje API)
+
+        if (isVercel) {
+            // Jesteś na Vercelu - aplikacja musi połączyć się z Twoim serwerem api/gemini.js
+            const payload = { prompt: hiddenInstruction, instances: { prompt: hiddenInstruction }, parameters: { sampleCount: 1 } };
             const res = await fetch('/api/gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ payload, type: 'image' })
             });
 
-            if (!res.ok) throw new Error("USE_FALLBACK");
+            if (!res.ok) {
+                const err = await res.json().catch(()=>({}));
+                throw new Error("Błąd Vercel API. Upewnij się, że STABILITY_API_KEY jest dodany do zmiennych środowiskowych! " + (err.error || ""));
+            }
             data = await res.json();
-        } catch (e) {
-            // TRYB RATUNKOWY: Jeśli API Vercel zawiedzie (lub jesteśmy w podglądzie), omijamy go!
-            console.log("Uruchamiam tryb ratunkowy dla Malarza...");
+        } else {
+            // Tryb testowy Canvas (darmowy, działa tylko w tym oknie czatu!)
             const apiKey = ""; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-            
             const fallbackRes = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: { prompt: payload.prompt },
+                    instances: [{ prompt: hiddenInstruction }],
                     parameters: { sampleCount: 1 }
                 })
             });
 
-            if (!fallbackRes.ok) throw new Error("Błąd zapasowego systemu API");
+            if (!fallbackRes.ok) throw new Error("Błąd serwera testowego Google");
             data = await fallbackRes.json();
         }
 
+        // Dekodowanie obrazka zależnie od tego, z jakiego serwera przyszedł
         const base64Image = data.predictions?.[0]?.bytesBase64Encoded || data.artifacts?.[0]?.base64 || data.image; 
         
         if (base64Image) {
@@ -524,11 +626,12 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
             onAddMedia(activeTrip.id, finalUrl);
             setAiPrompt("");
         } else {
-            throw new Error("Pusta odpowiedź z obrazkiem");
+            throw new Error("Pusta odpowiedź z serwera grafiki.");
         }
     } catch (e) {
         console.error("Błąd generowania AI", e);
-        alert("Nie udało się wygenerować obrazu. Sprawdź swoje połączenie sieciowe.");
+        // Zrozumiały alert dla Ciebie, co trzeba naprawić
+        alert(`BŁĄD: ${e.message}\n\nJeśli jesteś na Vercelu, musisz mieć w "Settings -> Environment Variables" klucze OPENAI_API_KEY oraz STABILITY_API_KEY.`);
     } finally {
         setIsGenerating(false);
     }
@@ -540,9 +643,9 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
 
   if (activeTrip) {
       return (
-          <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 animate-in slide-in-from-right-8 duration-300">
+          <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 animate-in slide-in-from-right-8 duration-300 pb-24 md:pb-8">
               <button onClick={() => setActiveTrip(null)} className="flex items-center gap-2 text-emerald-600 font-bold hover:text-emerald-700 transition">
-                  <ArrowLeft size={20} /> Powrót do listy wypraw
+                  <ArrowLeft size={20} /> Powrót do listy
               </button>
               
               <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-200">
@@ -552,7 +655,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                           <p className="text-slate-500 flex items-center gap-2 mt-2 font-medium"><CalendarDays size={18}/> {activeTrip.date} • <History size={18}/> {activeTrip.duration}</p>
                       </div>
                       
-                      {/* NOWOŚĆ: Kontrolki rejestrowania i tworzenia filmu */}
                       <div className="flex flex-wrap gap-3">
                           <button onClick={() => setIsTracking(!isTracking)} className={`px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md border btn-bounce ${isTracking ? 'bg-red-50 text-red-600 border-red-200' : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'}`}>
                               <Activity size={20} className={isTracking ? "animate-pulse" : ""} />
@@ -588,7 +690,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 md:p-8 border border-indigo-100 relative overflow-hidden shadow-inner">
                       <div className="absolute right-0 top-0 opacity-10 translate-x-4 -translate-y-4"><Paintbrush size={160} /></div>
                       <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz na szlaku (AI)</h3>
-                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Natura Was zaskoczyła, ale nie zdążyłeś wyciągnąć aparatu? Opisz co widziałeś, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
+                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
                       <div className="flex flex-col md:flex-row gap-3 relative z-10">
                           <input 
                               value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} 
@@ -608,7 +710,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 pb-24 md:pb-8">
       <div className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
         <div>
           <h2 className="font-black text-2xl text-slate-800">Moje Wyprawy</h2>
@@ -646,7 +748,7 @@ function MoviePlayer({ media, onClose, title }) {
     if (media.length <= 1) return;
     const timer = setInterval(() => {
       setCurrentIndex(prev => (prev + 1) % media.length);
-    }, 3500); // Slajd co 3.5 sekundy
+    }, 3500); 
     return () => clearInterval(timer);
   }, [media]);
 
@@ -692,7 +794,7 @@ function SidebarItem({ icon, label, isActive, onClick }) {
 
 function NavItem({ icon, label, isActive, onClick }) {
   return (
-    <button onClick={onClick} className={`flex flex-col items-center justify-center w-16 gap-1 transition-colors ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
+    <button onClick={onClick} className={`flex flex-col items-center justify-center w-[72px] gap-1 transition-colors ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}>
       <div className={`p-1.5 rounded-full ${isActive ? 'bg-emerald-50 scale-110' : ''} transition-all`}>{icon}</div>
       <span className={`text-[10px] ${isActive ? 'font-bold' : 'font-medium'}`}>{label}</span>
     </button>
