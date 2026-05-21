@@ -480,31 +480,55 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
     if (!aiPrompt.trim()) return;
     setIsGenerating(true);
     try {
+        const hiddenInstruction = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.`;
         const payload = {
-            prompt: `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.`,
-            instances: { prompt: `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.` },
+            prompt: hiddenInstruction,
+            instances: { prompt: hiddenInstruction },
             parameters: { sampleCount: 1 }
         };
         
-        // Łączy się bezpośrednio z Twoim serwerem Vercel, który obsługuje AI!
-        const res = await fetch('/api/gemini', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ payload, type: 'image' })
-        });
+        let data;
+        try {
+            // Najpierw próbujemy połączyć się z serwerem Vercel (jeśli istnieje API)
+            const res = await fetch('/api/gemini', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ payload, type: 'image' })
+            });
 
-        if (!res.ok) throw new Error("Błąd API");
-        const data = await res.json();
+            if (!res.ok) throw new Error("USE_FALLBACK");
+            data = await res.json();
+        } catch (e) {
+            // TRYB RATUNKOWY: Jeśli API Vercel zawiedzie (lub jesteśmy w podglądzie), omijamy go!
+            console.log("Uruchamiam tryb ratunkowy dla Malarza...");
+            const apiKey = ""; 
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            
+            const fallbackRes = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    instances: { prompt: payload.prompt },
+                    parameters: { sampleCount: 1 }
+                })
+            });
+
+            if (!fallbackRes.ok) throw new Error("Błąd zapasowego systemu API");
+            data = await fallbackRes.json();
+        }
+
         const base64Image = data.predictions?.[0]?.bytesBase64Encoded || data.artifacts?.[0]?.base64 || data.image; 
         
         if (base64Image) {
             const finalUrl = base64Image.startsWith('data:image') ? base64Image : `data:image/png;base64,${base64Image}`;
             onAddMedia(activeTrip.id, finalUrl);
             setAiPrompt("");
+        } else {
+            throw new Error("Pusta odpowiedź z obrazkiem");
         }
     } catch (e) {
         console.error("Błąd generowania AI", e);
-        alert("Nie udało się wygenerować obrazu. Sprawdź połączenie z serwerem API na Vercel.");
+        alert("Nie udało się wygenerować obrazu. Sprawdź swoje połączenie sieciowe.");
     } finally {
         setIsGenerating(false);
     }
