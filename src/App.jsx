@@ -4,7 +4,7 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock
 } from 'lucide-react';
 
 // --- BAZA DANYCH SZLAKÓW (BESKID ŚLĄSKI) ---
@@ -23,12 +23,33 @@ const TRAILS_DATA = [
 ];
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('home'); // Tabs: home, trails, planner, chat, journal
+  // --- ZABEZPIECZENIE APLIKACJI ---
+  const SECRET_PIN = "BESKIDY2026"; 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+
+  const [activeTab, setActiveTab] = useState('home'); 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [savedTrips, setSavedTrips] = useState([
     { id: 101, name: "Zdobycie Czantorii", date: "12 Sierpnia 2025", duration: "2h 10m", media: [] }
   ]);
   const [activeTrip, setActiveTrip] = useState(null);
+
+  // Sprawdzanie, czy użytkownik logował się wcześniej
+  useEffect(() => {
+    const savedAuth = localStorage.getItem('beskidyAuth') === 'true';
+    if (savedAuth) setIsAuthenticated(true);
+  }, []);
+
+  const handleLogin = () => {
+    if (passwordInput === SECRET_PIN) {
+        setIsAuthenticated(true);
+        localStorage.setItem('beskidyAuth', 'true');
+    } else {
+        alert('Nieprawidłowy kod dostępu!');
+        setPasswordInput('');
+    }
+  };
 
   const handleAddTrip = (trail) => {
     const today = new Date().toLocaleDateString('pl-PL', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -50,6 +71,40 @@ export default function App() {
     setSavedTrips(prev => [newTrip, ...prev]);
     setActiveTab('journal');
   };
+
+  // --- WIDOK LOGOWANIA (BLOKADA APLIKACJI) ---
+  if (!isAuthenticated) {
+      return (
+          <div className="h-screen w-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
+              <div className="absolute inset-0 opacity-30">
+                  <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920" alt="Góry tło" className="w-full h-full object-cover" />
+              </div>
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl w-full max-w-md relative z-10 text-center shadow-2xl animate-in zoom-in-95 duration-500">
+                  <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
+                      <Lock size={32} className="text-white" />
+                  </div>
+                  <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Osobisty Przewodnik</h1>
+                  <p className="text-emerald-100/70 text-sm mb-8">Aplikacja łączy się z płatnymi interfejsami API. Wymagany jest kod autoryzacji.</p>
+                  
+                  <input 
+                      type="password" 
+                      value={passwordInput} 
+                      onChange={(e) => setPasswordInput(e.target.value)}
+                      onKeyPress={(e) => { if (e.key === 'Enter') handleLogin(); }}
+                      placeholder="Wprowadź PIN..."
+                      className="w-full bg-black/30 border border-white/10 text-center text-white rounded-xl px-5 py-4 outline-none mb-4 text-2xl tracking-[0.5em] font-bold uppercase focus:border-emerald-500 transition-colors"
+                  />
+                  
+                  <button 
+                      onClick={handleLogin}
+                      className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-xl transition-all shadow-lg active:scale-95"
+                  >
+                      Odblokuj
+                  </button>
+              </div>
+          </div>
+      );
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
@@ -77,10 +132,13 @@ export default function App() {
         <div className="p-4 border-t border-emerald-800">
           <div className="bg-emerald-800/50 rounded-xl p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-emerald-700 rounded-full flex items-center justify-center"><User size={20} /></div>
-            <div>
+            <div className="flex-1">
               <p className="text-sm font-bold">Turysta</p>
               <p className="text-[10px] text-emerald-300">Wersja PRO</p>
             </div>
+            <button onClick={() => { setIsAuthenticated(false); localStorage.removeItem('beskidyAuth'); }} className="p-2 hover:bg-red-500/20 rounded-lg transition text-red-400" title="Wyloguj">
+               <LogOut size={16}/>
+            </button>
           </div>
         </div>
       </aside>
@@ -91,8 +149,8 @@ export default function App() {
           <Mountain size={24} />
           <h1 className="text-xl font-bold tracking-tight">Beskidy AI</h1>
         </div>
-        <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 bg-emerald-500 rounded-full">
-          <User size={20} />
+        <button onClick={() => { setIsAuthenticated(false); localStorage.removeItem('beskidyAuth'); }} className="p-2 bg-emerald-700 rounded-full">
+          <LogOut size={18} />
         </button>
       </div>
 
@@ -105,7 +163,7 @@ export default function App() {
         {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
       </main>
 
-      {/* --- MOBILE BOTTOM NAV (Przywrócone 5 elementów) --- */}
+      {/* --- MOBILE BOTTOM NAV --- */}
       <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-30">
         <NavItem icon={<Mountain />} label="Start" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <NavItem icon={<Map />} label="Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
@@ -194,7 +252,7 @@ function HomeView({ setActiveTab }) {
 }
 
 // ==========================================
-// WIDOK: SZLAKI I MAPA (Poprawione przełączanie Mobile)
+// WIDOK: SZLAKI I MAPA 
 // ==========================================
 function TrailsView({ onAddTrip }) {
   const [activeFilter, setActiveFilter] = useState('Wszystkie');
@@ -296,7 +354,7 @@ function TrailsView({ onAddTrip }) {
         </div>
       </div>
 
-      {/* Pływający Przycisk Mapa/Lista na Smartfony (Styl Google Maps) */}
+      {/* Pływający Przycisk Mapa/Lista na Smartfony */}
       <div className="md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
           <button 
               onClick={() => setIsMapVisibleOnMobile(!isMapVisibleOnMobile)} 
@@ -311,7 +369,7 @@ function TrailsView({ onAddTrip }) {
 }
 
 // ==========================================
-// WIDOK: OSOBISTY ASYSTENT CHAT (Przywrócony!)
+// WIDOK: OSOBISTY ASYSTENT CHAT
 // ==========================================
 function ChatAssistantView() {
   const [msg, setMsg] = useState("");
@@ -335,7 +393,6 @@ function ChatAssistantView() {
       let reply = "";
 
       if (isVercel) {
-        // Próba uderzenia do Vercela (Wymaga OPENAI_API_KEY w ustawieniach serwera)
         const res = await fetch('/api/gemini', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
@@ -346,7 +403,6 @@ function ChatAssistantView() {
         const data = await res.json();
         reply = data.candidates?.[0]?.content?.parts?.[0]?.text || data.choices?.[0]?.message?.content || "Nie zrozumiałem, spróbuj jeszcze raz.";
       } else {
-        // Tryb testowy Canvas (bezpłatny, działa tylko tutaj)
         const apiKey = ""; 
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
         const res = await fetch(url, {
@@ -561,7 +617,7 @@ function AIPlannerView({ onSavePlan }) {
 }
 
 // ==========================================
-// WIDOK: PAMIĘTNIK I MALARZ AI (Poprawiony Fallback Vercel)
+// WIDOK: PAMIĘTNIK I MALARZ AI
 // ==========================================
 function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const [aiPrompt, setAiPrompt] = useState("");
@@ -588,7 +644,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         let data;
 
         if (isVercel) {
-            // Jesteś na Vercelu - aplikacja musi połączyć się z Twoim serwerem api/gemini.js
             const payload = { prompt: hiddenInstruction, instances: { prompt: hiddenInstruction }, parameters: { sampleCount: 1 } };
             const res = await fetch('/api/gemini', {
                 method: 'POST',
@@ -602,7 +657,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
             }
             data = await res.json();
         } else {
-            // Tryb testowy Canvas (darmowy, działa tylko w tym oknie czatu!)
             const apiKey = ""; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
             const fallbackRes = await fetch(url, {
@@ -618,7 +672,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
             data = await fallbackRes.json();
         }
 
-        // Dekodowanie obrazka zależnie od tego, z jakiego serwera przyszedł
         const base64Image = data.predictions?.[0]?.bytesBase64Encoded || data.artifacts?.[0]?.base64 || data.image; 
         
         if (base64Image) {
@@ -630,7 +683,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         }
     } catch (e) {
         console.error("Błąd generowania AI", e);
-        // Zrozumiały alert dla Ciebie, co trzeba naprawić
         alert(`BŁĄD: ${e.message}\n\nJeśli jesteś na Vercelu, musisz mieć w "Settings -> Environment Variables" klucze OPENAI_API_KEY oraz STABILITY_API_KEY.`);
     } finally {
         setIsGenerating(false);
