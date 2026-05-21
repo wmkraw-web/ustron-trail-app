@@ -1,0 +1,27 @@
+{
+  "short_name": "Beskidy",
+  "name": "Przewodnik po Beskidach",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#059669",
+  "background_color": "#ffffff"
+}
+
+3. Na koniec, w pliku `index.html` w sekcji `<head>`, dopisz tę jedną linijkę, żeby przeglądarka wiedziała, gdzie szukać manifestu:
+`<link rel="manifest" href="/manifest.json">`
+
+Po ponownym wgraniu plików (redeploy) na Vercel:
+* **Na telefonach Android (Chrome):** po wejściu na stronę na dole ekranu automatycznie wyskoczy okienko **"Dodaj aplikację Beskidy do ekranu głównego"**.
+* **Na iPhone (Safari):** musisz kliknąć ikonę "Udostępnij" (kwadracik ze strzałką) i wybrać **"Do ekranu początkowego"**. Aplikacja będzie wyglądać i działać jak normalna "apka" pobrana ze sklepu, bez górnego paska adresu przeglądarki!
