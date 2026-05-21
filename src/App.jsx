@@ -641,11 +641,11 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
     
     try {
         const isVercel = window.location.hostname.includes('vercel.app');
-        const hiddenInstruction = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.`;
+        // ZMIANA: Wysyłamy do serwera czysty prompt wpisany przez Ciebie!
+        const hiddenInstruction = aiPrompt;
         let data;
 
         if (isVercel) {
-            // ZMIANA: Uderzamy do /api/chat zamiast /api/gemini
             const payload = { prompt: hiddenInstruction, instances: { prompt: hiddenInstruction }, parameters: { sampleCount: 1 } };
             const res = await fetch('/api/chat', {
                 method: 'POST',
