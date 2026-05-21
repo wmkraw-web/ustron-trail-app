@@ -16,7 +16,39 @@ export default async function handler(req, res) {
     if (type === 'image') {
       if (!stabilityKey) return res.status(401).json({ error: 'Brak klucza STABILITY_API_KEY na serwerze.' });
 
-      const imgPrompt = payload?.prompt || "Beautiful scenic mountain landscape";
+      const rawPrompt = payload?.prompt || "Beautiful scenic mountain landscape";
+      let englishPrompt = rawPrompt;
+
+      // --- TŁUMACZ W LOCIE (OPENAI) ---
+      // Stability AI nie rozumie polskiego, więc tłumaczymy prompt w ułamku sekundy
+      if (openaiKey) {
+          try {
+              const translateRes = await fetch('https://api.openai.com/v1/chat/completions', {
+                  method: 'POST',
+                  headers: { 
+                      'Content-Type': 'application/json', 
+                      'Authorization': `Bearer ${openaiKey}` 
+                  },
+                  body: JSON.stringify({
+                      model: "gpt-4o-mini",
+                      messages: [
+                          { role: "system", content: "You translate texts to English accurately. Return ONLY the English translation." },
+                          { role: "user", content: rawPrompt }
+                      ],
+                      temperature: 0.1
+                  })
+              });
+              if (translateRes.ok) {
+                  const tData = await translateRes.json();
+                  englishPrompt = tData.choices[0].message.content.trim();
+              }
+          } catch (e) {
+              console.warn("Wyjątek podczas tłumaczenia:", e);
+          }
+      }
+
+      // Dodajemy piękny artystyczny styl do PRZETŁUMACZONEGO tematu z okienka
+      const finalPrompt = `A beautiful artistic masterpiece painting of: ${englishPrompt}. Vibrant colors, highly detailed, nature.`;
 
       const response = await fetch('https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image', {
         method: 'POST',
@@ -26,7 +58,7 @@ export default async function handler(req, res) {
           'Authorization': `Bearer ${stabilityKey}` 
         },
         body: JSON.stringify({
-          text_prompts: [{ text: imgPrompt, weight: 1 }],
+          text_prompts: [{ text: finalPrompt, weight: 1 }],
           cfg_scale: 7,
           height: 1024,
           width: 1024,
