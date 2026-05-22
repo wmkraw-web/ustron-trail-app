@@ -1,15 +1,1 @@
-{
-  "short_name": "Szlaki AI",
-  "name": "Szlak Ustroński AI Premium",
-  "icons": [
-    {
-      "src": "favicon.svg",
-      "type": "image/svg+xml",
-      "sizes": "512x512"
-    }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#059669",
-  "background_color": "#f9fafb"
-}
+{"id": "/","short_name": "Beskidy AI","name": "Beskidy Przewodnik PRO","orientation": "portrait","icons": [{"src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png","sizes": "192x192","type": "image/png","purpose": "any maskable"},{"src": "https://cdn-icons-png.flaticon.com/512/3063/3063822.png","sizes": "512x512","type": "image/png","purpose": "any maskable"}],"start_url": "/","display": "standalone","theme_color": "#059669","background_color": "#f8fafc"}
