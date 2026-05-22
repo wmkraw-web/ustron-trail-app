@@ -4,22 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Beskidy Przewodnik PRO</title>
-    <!-- Link do manifestu PWA -->
+    <!-- Tu Vercel/Vite samo wstrzyknie potrzebne style -->
     <link rel="manifest" href="/manifest.json">
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     
-    <!-- Rejestracja Service Workera dla aplikacji mobilnej -->
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').then(registration => {
-            console.log('SW registered: ', registration);
-          }).catch(registrationError => {
-            console.log('SW registration failed: ', registrationError);
-          });
+          navigator.serviceWorker.register('/sw.js');
         });
       }
     </script>
