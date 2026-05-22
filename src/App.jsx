@@ -1,30 +1,177 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Map, MapPin, Navigation, Camera, Sparkles, History, Heart, 
+  Map as MapIcon, MapPin, Navigation, Camera, Sparkles, History, Heart, 
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2
 } from 'lucide-react';
 
-// --- BAZA DANYCH SZLAKÓW (BESKID ŚLĄSKI) ---
+// --- BAZA DANYCH SZLAKÓW Z PRAWDZIWYMI KOORDYNATAMI GPS (Beskidy) ---
 export const TRAILS_DATA = [
-  { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", mapX: "30%", mapY: "40%", pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
-  { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", mapX: "40%", mapY: "30%", pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
-  { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Karczma Ustronianka", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", mapX: "35%", mapY: "25%", pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
-  { id: 4, location: "Wisła", name: "Barania Góra (Białą Wisełką)", color: "bg-blue-500", distance: "6.5 km", time: "2h 30m", difficulty: "Średnia", elevation: "620 m", transport: "Autobus (Wisła Czarne Fojtula).", food: "Brak gastronomii na szlaku - weź prowiant!", description: "Szlak wzdłuż potoku. Prowadzi przez Kaskady Rodła.", mapX: "60%", mapY: "80%", pois: ['Kaskady Rodła'], familyFriendly: false },
-  { id: 5, location: "Wisła", name: "Trzy Kopce Wiślańskie", color: "bg-yellow-400", distance: "4.8 km", time: "1h 45m", difficulty: "Łatwa", elevation: "350 m", transport: "Pociąg do 'Wisła Uzdrowisko'.", food: "Telesforówka (słynne wypieki)", description: "Widokowa trasa z przerwą w Telesforówce.", mapX: "50%", mapY: "65%", pois: ['Telesforówka'], familyFriendly: true },
-  { id: 6, location: "Szczyrk", name: "Skrzyczne", color: "bg-blue-500", distance: "5.2 km", time: "2h 15m", difficulty: "Trudna", elevation: "700 m", transport: "Autobus 'Szczyrk Centrum'.", food: "Schronisko PTTK Skrzyczne", description: "Wymagające podejście na najwyższy szczyt Beskidu Śląskiego.", mapX: "80%", mapY: "45%", pois: ['Schronisko PTTK'], familyFriendly: false },
-  { id: 7, location: "Szczyrk", name: "Malinowska Skała", color: "bg-red-500", distance: "4.0 km", time: "1h 20m", difficulty: "Łatwa", elevation: "220 m", transport: "Autobus 'Przełęcz Salmopolska'.", food: "Najbliżej: Schronisko na Skrzycznem", description: "Widokowy szlak grzbietowy z formacją skalną.", mapX: "70%", mapY: "60%", pois: ['Malinowska Skała'], familyFriendly: true },
-  { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", food: "Ranczo Błatnia, Schronisko PTTK", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", mapX: "55%", mapY: "20%", pois: ['Ranczo Błatnia'], familyFriendly: false },
-  { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", food: "Schronisko na Soszowie, Lepiarzówka", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", mapX: "40%", mapY: "60%", pois: ['Schronisko Soszów'], familyFriendly: true },
-  { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", food: "Schronisko Klimczok, Szyndzielnia", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", mapX: "75%", mapY: "25%", pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
-  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", mapX: "35%", mapY: "85%", pois: ['Punkt Widokowy'], familyFriendly: true },
-  { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", mapX: "25%", mapY: "65%", pois: ['Schronisko'], familyFriendly: false }
+  { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", lat: 49.679, lng: 18.791, pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
+  { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", lat: 49.713, lng: 18.841, pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
+  { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Karczma Ustronianka", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", lat: 49.715, lng: 18.825, pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
+  { id: 4, location: "Wisła", name: "Barania Góra (Białą Wisełką)", color: "bg-blue-500", distance: "6.5 km", time: "2h 30m", difficulty: "Średnia", elevation: "620 m", transport: "Autobus (Wisła Czarne Fojtula).", food: "Brak gastronomii na szlaku - weź prowiant!", description: "Szlak wzdłuż potoku. Prowadzi przez Kaskady Rodła.", lat: 49.610, lng: 19.000, pois: ['Kaskady Rodła'], familyFriendly: false },
+  { id: 5, location: "Wisła", name: "Trzy Kopce Wiślańskie", color: "bg-yellow-400", distance: "4.8 km", time: "1h 45m", difficulty: "Łatwa", elevation: "350 m", transport: "Pociąg do 'Wisła Uzdrowisko'.", food: "Telesforówka (słynne wypieki)", description: "Widokowa trasa z przerwą w Telesforówce.", lat: 49.654, lng: 18.859, pois: ['Telesforówka'], familyFriendly: true },
+  { id: 6, location: "Szczyrk", name: "Skrzyczne", color: "bg-blue-500", distance: "5.2 km", time: "2h 15m", difficulty: "Trudna", elevation: "700 m", transport: "Autobus 'Szczyrk Centrum'.", food: "Schronisko PTTK Skrzyczne", description: "Wymagające podejście na najwyższy szczyt Beskidu Śląskiego.", lat: 49.684, lng: 19.030, pois: ['Schronisko PTTK'], familyFriendly: false },
+  { id: 7, location: "Szczyrk", name: "Malinowska Skała", color: "bg-red-500", distance: "4.0 km", time: "1h 20m", difficulty: "Łatwa", elevation: "220 m", transport: "Autobus 'Przełęcz Salmopolska'.", food: "Najbliżej: Schronisko na Skrzycznem", description: "Widokowy szlak grzbietowy z formacją skalną.", lat: 49.664, lng: 19.006, pois: ['Malinowska Skała'], familyFriendly: true },
+  { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", food: "Ranczo Błatnia, Schronisko PTTK", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", lat: 49.736, lng: 18.914, pois: ['Ranczo Błatnia'], familyFriendly: false },
+  { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", food: "Schronisko na Soszowie, Lepiarzówka", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", lat: 49.638, lng: 18.818, pois: ['Schronisko Soszów'], familyFriendly: true },
+  { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", food: "Schronisko Klimczok, Szyndzielnia", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", lat: 49.733, lng: 19.014, pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
+  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", lat: 49.576, lng: 18.895, pois: ['Punkt Widokowy'], familyFriendly: true },
+  { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", lat: 49.605, lng: 18.822, pois: ['Schronisko'], familyFriendly: false }
 ];
 
+// --- INTELIGENTNY KOMPONENT MAPY LEAFLET (Omijający błędy kompilacji) ---
+function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip }) {
+  const mapRef = useRef(null);
+  const mapInstance = useRef(null);
+  const markersLayer = useRef(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    // 1. Ładowanie CSS Leaflet
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link');
+      link.id = 'leaflet-css';
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+      document.head.appendChild(link);
+    }
+
+    // 2. Ładowanie JS Leaflet
+    if (!document.getElementById('leaflet-js')) {
+      const script = document.createElement('script');
+      script.id = 'leaflet-js';
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.onload = () => { if (isMounted) setIsLoaded(true); };
+      document.body.appendChild(script);
+    } else {
+      if (window.L) setIsLoaded(true);
+      else document.getElementById('leaflet-js').addEventListener('load', () => { if (isMounted) setIsLoaded(true); });
+    }
+
+    return () => { isMounted = false; };
+  }, []);
+
+  // Inicjalizacja Mapy
+  useEffect(() => {
+    if (isLoaded && mapRef.current && !mapInstance.current) {
+      const L = window.L;
+      const map = L.map(mapRef.current, { zoomControl: false }).setView([49.68, 18.85], 11);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(map);
+      
+      L.control.zoom({ position: 'topright' }).addTo(map);
+      
+      mapInstance.current = map;
+      markersLayer.current = L.featureGroup().addTo(map);
+    }
+  }, [isLoaded]);
+
+  // Aktualizacja Pinezek
+  useEffect(() => {
+    if (!mapInstance.current || !markersLayer.current) return;
+    const L = window.L;
+    markersLayer.current.clearLayers();
+
+    trails.forEach(trail => {
+      const isFood = activeFilter === '🍲 Gastronomia';
+      const colorMap = {
+        'bg-red-500': '#ef4444', 'bg-yellow-400': '#eab308', 'bg-blue-500': '#3b82f6',
+        'bg-green-500': '#22c55e', 'bg-purple-500': '#a855f7', 'bg-gray-800': '#1f2937'
+      };
+      const hexColor = colorMap[trail.color] || '#10b981';
+      const isSelected = selectedPin?.id === trail.id;
+
+      const iconHtml = `
+        <div style="background-color: white; padding: 4px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 3px solid ${hexColor}; font-size: 16px; text-align: center; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'}; transition: transform 0.2s;">
+          ${isFood ? '🍲' : '📍'}
+        </div>`;
+
+      const customIcon = L.divIcon({
+        className: 'custom-leaflet-pin',
+        html: iconHtml,
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36]
+      });
+
+      const marker = L.marker([trail.lat, trail.lng], { icon: customIcon });
+      
+      const popupContent = document.createElement('div');
+      popupContent.innerHTML = `
+        <div class="p-1 font-sans" style="min-width: 200px;">
+          <h3 class="font-bold text-base mb-1 text-slate-800">${trail.name}</h3>
+          <p class="text-xs text-slate-500 mb-2">${trail.location} • ${trail.difficulty}</p>
+          <p class="text-xs bg-amber-50 p-2 rounded-lg border border-amber-100 mb-3 text-slate-800"><b>🍔 Gastronomia:</b> ${trail.food}</p>
+          <button id="save-btn-${trail.id}" style="width: 100%; background-color: #059669; color: white; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer;">Zapisz do Pamiętnika</button>
+        </div>
+      `;
+      
+      marker.bindPopup(popupContent);
+      
+      marker.on('popupopen', () => {
+        document.getElementById(`save-btn-${trail.id}`).addEventListener('click', () => {
+          onAddTrip(trail);
+        });
+      });
+
+      marker.on('click', () => {
+        setSelectedPin(trail);
+      });
+
+      markersLayer.current.addLayer(marker);
+    });
+  }, [trails, activeFilter, selectedPin, onAddTrip]);
+
+  // Płynne przesuwanie kamery do wybranego punktu
+  useEffect(() => {
+    if (mapInstance.current && selectedPin) {
+      mapInstance.current.flyTo([selectedPin.lat, selectedPin.lng], 14, { duration: 1.5 });
+    }
+  }, [selectedPin]);
+
+  const locateMe = () => {
+    if (navigator.geolocation && mapInstance.current) {
+      navigator.geolocation.getCurrentPosition(pos => {
+        const { latitude, longitude } = pos.coords;
+        mapInstance.current.flyTo([latitude, longitude], 14);
+        window.L.marker([latitude, longitude]).addTo(mapInstance.current).bindPopup('Jesteś tutaj!').openPopup();
+      }, () => {
+        alert("Brak dostępu do lokalizacji.");
+      });
+    }
+  };
+
+  return (
+    <div className="w-full h-full relative z-0">
+      {!isLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-emerald-50 text-emerald-800 font-bold z-10 flex-col gap-3">
+          <Loader2 className="animate-spin" size={32} />
+          Ładowanie interaktywnej mapy...
+        </div>
+      )}
+      <div ref={mapRef} className="w-full h-full" style={{ zIndex: 1 }}></div>
+      <button 
+         onClick={locateMe}
+         className="absolute bottom-6 right-4 z-[400] bg-white text-blue-600 p-3 rounded-full shadow-xl border border-slate-200 hover:bg-blue-50 transition"
+         title="Znajdź mnie (GPS)"
+      >
+         <Navigation2 size={24} className="fill-current" />
+      </button>
+    </div>
+  );
+}
+
+// --- GŁÓWNA APLIKACJA ---
 export default function App() {
-  // --- ZABEZPIECZENIE APLIKACJI ---
+  // Zabezpieczenie
   const SECRET_PIN = "BESKIDY2026"; 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -77,13 +224,13 @@ export default function App() {
   const navigateToTrailsWithFilter = (filter) => {
       setActiveFilter(filter);
       setActiveTab('trails');
-  }
+  };
 
+  // EKRAN LOGOWANIA
   if (!isAuthenticated) {
       return (
           <div className="h-screen w-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
               <div className="absolute inset-0 opacity-30">
-                  {/* Górskie Tło */}
                   <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920" alt="Góry tło" className="w-full h-full object-cover" />
               </div>
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl w-full max-w-md relative z-10 text-center shadow-2xl animate-in zoom-in-95 duration-500">
@@ -116,7 +263,7 @@ export default function App() {
   return (
     <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
       
-      {/* --- DESKTOP SIDEBAR --- */}
+      {/* DESKTOP SIDEBAR */}
       <aside className="hidden md:flex flex-col w-72 bg-emerald-900 text-white shadow-2xl relative z-20">
         <div className="p-6 border-b border-emerald-800">
           <div className="flex items-center gap-3 mb-2">
@@ -130,7 +277,7 @@ export default function App() {
 
         <nav className="flex-1 px-4 py-6 space-y-2">
           <SidebarItem icon={<Mountain />} label="Pulpit Główny" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-          <SidebarItem icon={<Map />} label="Mapa i Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
+          <SidebarItem icon={<MapIcon />} label="Mapa i Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
           <SidebarItem icon={<CalendarDays />} label="Planer Trasy" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
           <SidebarItem icon={<MessageCircle />} label="Asystent AI" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
           <SidebarItem icon={<History />} label="Pamiętnik Wypraw" isActive={activeTab === 'journal'} onClick={() => { setActiveTab('journal'); setActiveTrip(null); }} />
@@ -150,7 +297,7 @@ export default function App() {
         </div>
       </aside>
 
-      {/* --- MOBILE TOP BAR --- */}
+      {/* MOBILE TOP BAR */}
       <div className="md:hidden fixed top-0 w-full bg-emerald-600 text-white p-4 shadow-md z-30 flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Mountain size={24} />
@@ -161,8 +308,8 @@ export default function App() {
         </button>
       </div>
 
-      {/* --- GŁÓWNA ZAWARTOŚĆ --- */}
-      <main className="flex-1 overflow-y-auto pt-16 md:pt-0 pb-20 md:pb-0 relative scroll-smooth">
+      {/* GŁÓWNA ZAWARTOŚĆ */}
+      <main className="flex-1 overflow-y-auto pt-16 md:pt-0 pb-20 md:pb-0 relative scroll-smooth z-10">
         {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} navigateToTrailsWithFilter={navigateToTrailsWithFilter} />}
         {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} activeFilter={activeFilter} setActiveFilter={setActiveFilter} />}
         {activeTab === 'planner' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
@@ -170,10 +317,10 @@ export default function App() {
         {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
       </main>
 
-      {/* --- MOBILE BOTTOM NAV --- */}
-      <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-30">
+      {/* MOBILE BOTTOM NAV */}
+      <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-40">
         <NavItem icon={<Mountain />} label="Start" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
-        <NavItem icon={<Map />} label="Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
+        <NavItem icon={<MapIcon />} label="Mapa" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
         <NavItem icon={<CalendarDays />} label="Planer" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
         <NavItem icon={<MessageCircle />} label="Asystent" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
         <NavItem icon={<History />} label="Pamiętnik" isActive={activeTab === 'journal'} onClick={() => { setActiveTab('journal'); setActiveTrip(null); }} />
@@ -217,14 +364,12 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
         </div>
       </div>
 
-      {/* Szybkie Akcje */}
       <div>
         <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">Szybkie menu</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <QuickActionButton icon={<CalendarDays />} label="Kreator Trasy" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('planner')} />
           <QuickActionButton icon={<MessageCircle />} label="Asystent Chat" color="bg-purple-100 text-purple-700" iconColor="bg-purple-500" onClick={() => setActiveTab('chat')} />
-          <QuickActionButton icon={<Map />} label="Mapa Szlaków" color="bg-orange-100 text-orange-700" iconColor="bg-orange-500" onClick={() => navigateToTrailsWithFilter('Wszystkie')} />
-          
+          <QuickActionButton icon={<MapIcon />} label="Mapa Interaktywna" color="bg-blue-100 text-blue-700" iconColor="bg-blue-500" onClick={() => navigateToTrailsWithFilter('Wszystkie')} />
           <QuickActionButton icon={<Utensils />} label="Schroniska" color="bg-amber-100 text-amber-800" iconColor="bg-amber-500" onClick={() => navigateToTrailsWithFilter('🍲 Gastronomia')} />
         </div>
       </div>
@@ -246,7 +391,7 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
               <span className="bg-red-100 text-red-700 px-2 py-1 rounded-lg">Czerwony szlak</span>
             </div>
             <button onClick={() => navigateToTrailsWithFilter('Ustroń')} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition">
-              Zobacz szczegóły
+              Zobacz na Mapie
             </button>
           </div>
         </div>
@@ -257,55 +402,23 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
 }
 
 // ==========================================
-// WIDOK: SZLAKI I MAPA (Z Opcją Zoom i Drag)
+// WIDOK: SZLAKI I MAPA OPENSTREETMAP
 // ==========================================
 function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   const [selectedPin, setSelectedPin] = useState(null);
   const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
-  
-  // Zmienne mapy interaktywnej
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
   const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Istebna', 'Brenna', '🍲 Gastronomia'];
   
-  // Inteligentne filtrowanie (w tym dla "Gastronomii")
   const filteredTrails = TRAILS_DATA.filter(t => {
       if (activeFilter === 'Wszystkie') return true;
       if (activeFilter === '🍲 Gastronomia') return t.food && t.food !== "Prowiant własny" && !t.food.includes("Brak");
       return t.location === activeFilter;
   });
 
-  // Obsługa przeciągania mapy
-  const handleMouseDown = (e) => {
-      setIsDragging(true);
-      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-  };
-  const handleMouseMove = (e) => {
-      if (isDragging) setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-  };
-  const handleMouseUp = () => setIsDragging(false);
-
-  // Obsługa dla dotyku (Smartfony)
-  const handleTouchStart = (e) => {
-      setIsDragging(true);
-      setDragStart({ x: e.touches[0].clientX - position.x, y: e.touches[0].clientY - position.y });
-  };
-  const handleTouchMove = (e) => {
-      if (isDragging) setPosition({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
-  };
-
-  // Zoom mapy
-  const handleZoomIn = () => setScale(s => Math.min(s + 0.5, 3));
-  const handleZoomOut = () => setScale(s => Math.max(s - 0.5, 0.5));
-  const handleReset = () => { setScale(1); setPosition({x:0, y:0}); };
-
   return (
-    <div className="h-full flex flex-col md:p-6 p-0 max-w-7xl mx-auto relative">
+    <div className="h-full flex flex-col md:p-6 p-0 max-w-7xl mx-auto relative z-10">
       
-      {/* Nagłówek i Filtry */}
       <div className="bg-white md:bg-transparent p-4 md:p-0 border-b md:border-none border-slate-200 shrink-0 z-20">
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-2xl text-slate-800">
@@ -328,14 +441,14 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
 
       <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden md:mt-2 relative">
         
-        {/* LEWA: Lista Szlaków */}
+        {/* LEWA KOLUMNA: Lista */}
         <div className={`w-full md:w-1/2 lg:w-5/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-32 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
           {filteredTrails.length === 0 && (
              <div className="text-center p-10 text-slate-400 font-medium">Brak wyników w tej kategorii.</div>
           )}
           {filteredTrails.map(trail => (
             <div key={trail.id} 
-              onMouseEnter={() => setSelectedPin(trail)}
+              onClick={() => setSelectedPin(trail)}
               className={`bg-white rounded-3xl p-5 shadow-sm border-2 transition-all cursor-pointer ${selectedPin?.id === trail.id ? 'border-emerald-500 shadow-md scale-[1.02]' : 'border-slate-100 hover:border-slate-300'}`}
             >
               <div className="flex items-start gap-4 mb-4">
@@ -361,7 +474,6 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
                   <Train size={18} className="text-blue-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-slate-600 leading-relaxed"><b>Dojazd:</b> {trail.transport}</p>
                 </div>
-                {/* Wyróżniony blok jedzenia */}
                 <div className={`flex items-start gap-3 rounded-xl p-3 ${activeFilter === '🍲 Gastronomia' ? 'bg-amber-100 border border-amber-200' : 'bg-amber-50/50'}`}>
                   <Utensils size={18} className="text-amber-600 shrink-0 mt-0.5" />
                   <p className="text-xs text-slate-800 leading-relaxed"><b>Jedzenie:</b> {trail.food}</p>
@@ -376,96 +488,24 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
           ))}
         </div>
 
-        {/* PRAWA: Duża Interaktywna Mapa */}
+        {/* PRAWA KOLUMNA: Mapka */}
         <div className={`w-full md:w-1/2 lg:w-7/12 relative bg-emerald-50 rounded-none md:rounded-3xl border border-emerald-200 overflow-hidden shadow-inner flex flex-col min-h-[500px] h-full ${!isMapVisibleOnMobile ? 'hidden md:flex' : 'flex'}`}>
-          
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg text-xs font-bold text-emerald-800 shadow-sm border border-emerald-100 z-20 flex flex-col gap-1">
-             <span>Mapa Beskidu Śląskiego</span>
-             <span className="text-[10px] text-slate-500 font-normal">Przeciągnij by przesunąć mapę</span>
-          </div>
-
-          {/* Kontrolki Zoom */}
-          <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
-             <button onClick={handleZoomIn} className="w-10 h-10 bg-white rounded-xl shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition"><Plus size={20}/></button>
-             <button onClick={handleZoomOut} className="w-10 h-10 bg-white rounded-xl shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition"><Minus size={20}/></button>
-             <button onClick={handleReset} className="w-10 h-10 bg-emerald-600 rounded-xl shadow-md border border-emerald-700 flex items-center justify-center text-white hover:bg-emerald-500 transition mt-2" title="Wyśrodkuj"><Maximize size={18}/></button>
-          </div>
-
-          {/* Kontener Mapy (Drag & Scale) */}
-          <div 
-             className={`w-full h-full relative ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-             onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
-             onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}
-          >
-             <div 
-                className="absolute inset-0 w-full h-full"
-                style={{ 
-                  transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`, 
-                  transformOrigin: 'center center',
-                  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
-                }}
-             >
-                {/* NOWE TŁO WEKTOROWE MAPY (Drogi, Rzeki, Lasy) */}
-                <div className="absolute inset-0 pointer-events-none">
-                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                      <pattern id="city-map" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
-                        <rect width="400" height="400" fill="#f0fdf4"/>
-                        {/* Rzeki */}
-                        <path d="M0,150 Q100,180 200,150 T400,200" fill="none" stroke="#bae6fd" strokeWidth="20" />
-                        <path d="M200,150 Q250,250 200,400" fill="none" stroke="#bae6fd" strokeWidth="12" />
-                        {/* Główne Drogi */}
-                        <path d="M80,0 L80,400 M0,250 L400,250 M180,0 L280,400" fill="none" stroke="#ffffff" strokeWidth="8" />
-                        {/* Mniejsze Drogi */}
-                        <path d="M80,100 L180,100 M230,250 L350,350 M0,80 L400,80 M280,0 L380,150 M0,350 L80,350" fill="none" stroke="#ffffff" strokeWidth="4" />
-                        {/* Obszary leśne / Parki */}
-                        <path d="M250,50 Q300,20 350,80 T300,150 Z" fill="#dcfce7" />
-                        <path d="M20,280 Q60,250 100,290 T40,380 Z" fill="#dcfce7" />
-                        <path d="M300,280 Q350,260 380,320 T320,380 Z" fill="#dcfce7" />
-                      </pattern>
-                    </defs>
-                    <rect x="0" y="0" width="100%" height="100%" fill="url(#city-map)" />
-                  </svg>
-                </div>
-
-                {/* PINEZKI */}
-                {filteredTrails.map(trail => (
-                  <div 
-                    key={`pin-${trail.id}`}
-                    onClick={(e) => { e.stopPropagation(); setSelectedPin(trail); }}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform z-10 cursor-pointer"
-                    style={{ left: trail.mapX, top: trail.mapY }}
-                  >
-                    <div className="relative flex flex-col items-center">
-                      <div className={`relative p-1.5 rounded-full shadow-md ${selectedPin?.id === trail.id ? 'ring-4 ring-emerald-400 scale-110 bg-white' : 'bg-white/90 backdrop-blur'} transition-all`}>
-                        {/* Zawsze pokazujemy pinezkę, żeby to wyglądało na mapę */}
-                        <MapPin size={28} className={`${trail.color.replace('bg-', 'text-')} fill-current drop-shadow-sm`} />
-                        
-                        {/* Jeśli to gastronomia, dodajemy małą plakietkę ze sztućcami NA pinezce! */}
-                        {activeFilter === '🍲 Gastronomia' && (
-                            <div className="absolute -top-1 -right-2 bg-amber-100 border border-amber-300 rounded-full p-1 shadow-md">
-                               <Utensils size={12} className="text-amber-600" />
-                            </div>
-                        )}
-                      </div>
-                      <span className={`absolute top-full mt-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-all ${selectedPin?.id === trail.id || scale > 1.5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                        {trail.name}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-             </div>
-          </div>
+          <DynamicLeafletMap 
+             trails={filteredTrails} 
+             activeFilter={activeFilter} 
+             selectedPin={selectedPin} 
+             setSelectedPin={setSelectedPin} 
+             onAddTrip={onAddTrip} 
+          />
         </div>
       </div>
 
-      {/* Pływający Przycisk Mapa/Lista na Smartfony */}
       <div className="md:hidden fixed bottom-20 left-1/2 -translate-x-1/2 z-40">
           <button 
               onClick={() => setIsMapVisibleOnMobile(!isMapVisibleOnMobile)} 
               className="bg-slate-900 text-white px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 font-bold hover:scale-105 transition-transform"
           >
-              {isMapVisibleOnMobile ? <><List size={18}/> Pokaż Listę</> : <><Map size={18}/> Pokaż Mapę</>}
+              {isMapVisibleOnMobile ? <><List size={18}/> Pokaż Listę</> : <><MapIcon size={18}/> Pokaż Mapę</>}
           </button>
       </div>
 
@@ -474,7 +514,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
 }
 
 // ==========================================
-// WIDOK: OSOBISTY ASYSTENT CHAT (Mądrzejszy!)
+// WIDOK: OSOBISTY ASYSTENT CHAT 
 // ==========================================
 function ChatAssistantView() {
   const [msg, setMsg] = useState("");
@@ -497,12 +537,11 @@ function ChatAssistantView() {
       const isVercel = window.location.hostname.includes('vercel.app');
       let reply = "";
       
-      // Budujemy kontekst dla AI z naszej aplikacji
       const contextData = TRAILS_DATA.map(t => `${t.name} (Lokalizacja: ${t.location}, Jedzenie/Schroniska: ${t.food})`).join('; ');
       const systemInstruction = `Jesteś bardzo pomocnym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk, Brenna, Istebna).
 Oto baza wiedzy z Twojej aplikacji: ${contextData}.
 WAŻNE OGRANICZENIE: Jesteś tylko czatem tekstowym. NIE MASZ dostępu do klikania na ekranie ani pokazywania miejsc na interaktywnej mapie. 
-Jeśli użytkownik prosi "pokaż na mapie" lub "gdzie to jest", odpowiedz opisowo (np. "Niestety nie mogę kliknąć na mapie, ale to schronisko znajdziesz w sekcji Szlaki i Mapa w aplikacji. Szlak znajduje się w...").
+Jeśli użytkownik prosi "pokaż na mapie", odpowiedz opisowo (np. "Wejdź w zakładkę Szlaki i Mapa, znajdziesz to miejsce obok...").
 Zawsze odpowiadaj krótko i przyjaźnie. Pytanie turysty: ${msg}`;
 
       if (isVercel) {
@@ -534,7 +573,7 @@ Zawsze odpowiadaj krótko i przyjaźnie. Pytanie turysty: ${msg}`;
       setChat([...newChat, { role: 'ai', text: reply }]);
     } catch (e) {
       console.error(e);
-      setChat([...newChat, { role: 'ai', text: "⚠️ Błąd połączenia z serwerem. Jeśli jesteś na Vercelu, upewnij się, że dodałeś klucz 'OPENAI_API_KEY'!" }]);
+      setChat([...newChat, { role: 'ai', text: "⚠️ Błąd połączenia z serwerem. Upewnij się, że dodałeś klucz 'OPENAI_API_KEY'!" }]);
     } finally {
       setIsLoading(false);
     }
@@ -645,7 +684,7 @@ function AIPlannerView({ onSavePlan }) {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <button onClick={() => setPreferences({...preferences, companions: 'adults'})} className={`p-4 rounded-xl font-bold border-2 flex flex-col items-center gap-2 transition-all ${preferences.companions === 'adults' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}><User size={24}/> Dorośli</button>
                 <button onClick={() => setPreferences({...preferences, companions: 'kids'})} className={`p-4 rounded-xl font-bold border-2 flex flex-col items-center gap-2 transition-all ${preferences.companions === 'kids' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}><Heart size={24}/> Z dziećmi</button>
-                <button onClick={() => setPreferences({...preferences, companions: 'dog'})} className={`p-4 rounded-xl font-bold border-2 flex flex-col items-center gap-2 transition-all ${preferences.companions === 'dog' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}><Map size={24}/> Z psem</button>
+                <button onClick={() => setPreferences({...preferences, companions: 'dog'})} className={`p-4 rounded-xl font-bold border-2 flex flex-col items-center gap-2 transition-all ${preferences.companions === 'dog' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}><MapIcon size={24}/> Z psem</button>
               </div>
             </div>
 
