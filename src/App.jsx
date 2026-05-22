@@ -405,24 +405,48 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
                   transition: isDragging ? 'none' : 'transform 0.1s ease-out'
                 }}
              >
-                <div className="absolute inset-0 opacity-20 pointer-events-none">
-                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="topo" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><path d="M10,10 Q40,40 90,10 M20,30 Q50,60 90,30 M10,50 Q40,80 80,50 M30,70 Q60,90 90,70" fill="none" stroke="#059669" strokeWidth="1" opacity="0.5"/><path d="M0,20 Q30,50 80,20 M10,40 Q40,70 80,40" fill="none" stroke="#047857" strokeWidth="0.5" opacity="0.3"/></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#topo)" /></svg>
+                {/* NOWE TŁO WEKTOROWE MAPY (Drogi, Rzeki, Lasy) */}
+                <div className="absolute inset-0 pointer-events-none">
+                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                      <pattern id="city-map" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
+                        <rect width="400" height="400" fill="#f0fdf4"/>
+                        {/* Rzeki */}
+                        <path d="M0,150 Q100,180 200,150 T400,200" fill="none" stroke="#bae6fd" strokeWidth="20" />
+                        <path d="M200,150 Q250,250 200,400" fill="none" stroke="#bae6fd" strokeWidth="12" />
+                        {/* Główne Drogi */}
+                        <path d="M80,0 L80,400 M0,250 L400,250 M180,0 L280,400" fill="none" stroke="#ffffff" strokeWidth="8" />
+                        {/* Mniejsze Drogi */}
+                        <path d="M80,100 L180,100 M230,250 L350,350 M0,80 L400,80 M280,0 L380,150 M0,350 L80,350" fill="none" stroke="#ffffff" strokeWidth="4" />
+                        {/* Obszary leśne / Parki */}
+                        <path d="M250,50 Q300,20 350,80 T300,150 Z" fill="#dcfce7" />
+                        <path d="M20,280 Q60,250 100,290 T40,380 Z" fill="#dcfce7" />
+                        <path d="M300,280 Q350,260 380,320 T320,380 Z" fill="#dcfce7" />
+                      </pattern>
+                    </defs>
+                    <rect x="0" y="0" width="100%" height="100%" fill="url(#city-map)" />
+                  </svg>
                 </div>
 
+                {/* PINEZKI */}
                 {filteredTrails.map(trail => (
                   <div 
                     key={`pin-${trail.id}`}
                     onClick={(e) => { e.stopPropagation(); setSelectedPin(trail); }}
-                    className="absolute transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform z-10 cursor-pointer"
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform z-10 cursor-pointer"
                     style={{ left: trail.mapX, top: trail.mapY }}
                   >
                     <div className="relative flex flex-col items-center">
-                      <div className={`p-1.5 rounded-full shadow-md ${selectedPin?.id === trail.id ? 'ring-4 ring-emerald-400 scale-125 bg-white' : 'bg-white/80 backdrop-blur'} transition-all`}>
-                        {/* Ikona sztućców jeśli to filter Gastro */}
-                        {activeFilter === '🍲 Gastronomia' ? 
-                           <Utensils size={24} className={`${trail.color.replace('bg-', 'text-')} fill-current`} /> :
-                           <MapPin size={24} className={`${trail.color.replace('bg-', 'text-')} fill-current`} />
-                        }
+                      <div className={`relative p-1.5 rounded-full shadow-md ${selectedPin?.id === trail.id ? 'ring-4 ring-emerald-400 scale-110 bg-white' : 'bg-white/90 backdrop-blur'} transition-all`}>
+                        {/* Zawsze pokazujemy pinezkę, żeby to wyglądało na mapę */}
+                        <MapPin size={28} className={`${trail.color.replace('bg-', 'text-')} fill-current drop-shadow-sm`} />
+                        
+                        {/* Jeśli to gastronomia, dodajemy małą plakietkę ze sztućcami NA pinezce! */}
+                        {activeFilter === '🍲 Gastronomia' && (
+                            <div className="absolute -top-1 -right-2 bg-amber-100 border border-amber-300 rounded-full p-1 shadow-md">
+                               <Utensils size={12} className="text-amber-600" />
+                            </div>
+                        )}
                       </div>
                       <span className={`absolute top-full mt-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-all ${selectedPin?.id === trail.id || scale > 1.5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
                         {trail.name}
