@@ -4,11 +4,11 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize
 } from 'lucide-react';
 
 // --- BAZA DANYCH SZLAKÓW (BESKID ŚLĄSKI) ---
-const TRAILS_DATA = [
+export const TRAILS_DATA = [
   { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", mapX: "30%", mapY: "40%", pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
   { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", mapX: "40%", mapY: "30%", pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
   { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Karczma Ustronianka", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", mapX: "35%", mapY: "25%", pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
@@ -19,7 +19,8 @@ const TRAILS_DATA = [
   { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", food: "Ranczo Błatnia, Schronisko PTTK", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", mapX: "55%", mapY: "20%", pois: ['Ranczo Błatnia'], familyFriendly: false },
   { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", food: "Schronisko na Soszowie, Lepiarzówka", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", mapX: "40%", mapY: "60%", pois: ['Schronisko Soszów'], familyFriendly: true },
   { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", food: "Schronisko Klimczok, Szyndzielnia", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", mapX: "75%", mapY: "25%", pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
-  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", mapX: "35%", mapY: "85%", pois: ['Punkt Widokowy'], familyFriendly: true }
+  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", mapX: "35%", mapY: "85%", pois: ['Punkt Widokowy'], familyFriendly: true },
+  { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", mapX: "25%", mapY: "65%", pois: ['Schronisko'], familyFriendly: false }
 ];
 
 export default function App() {
@@ -29,13 +30,14 @@ export default function App() {
   const [passwordInput, setPasswordInput] = useState('');
 
   const [activeTab, setActiveTab] = useState('home'); 
+  const [activeFilter, setActiveFilter] = useState('Wszystkie');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
   const [savedTrips, setSavedTrips] = useState([
     { id: 101, name: "Zdobycie Czantorii", date: "12 Sierpnia 2025", duration: "2h 10m", media: [] }
   ]);
   const [activeTrip, setActiveTrip] = useState(null);
 
-  // Sprawdzanie, czy użytkownik logował się wcześniej
   useEffect(() => {
     const savedAuth = localStorage.getItem('beskidyAuth') === 'true';
     if (savedAuth) setIsAuthenticated(true);
@@ -72,11 +74,16 @@ export default function App() {
     setActiveTab('journal');
   };
 
-  // --- WIDOK LOGOWANIA (BLOKADA APLIKACJI) ---
+  const navigateToTrailsWithFilter = (filter) => {
+      setActiveFilter(filter);
+      setActiveTab('trails');
+  }
+
   if (!isAuthenticated) {
       return (
           <div className="h-screen w-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
               <div className="absolute inset-0 opacity-30">
+                  {/* Górskie Tło */}
                   <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920" alt="Góry tło" className="w-full h-full object-cover" />
               </div>
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl w-full max-w-md relative z-10 text-center shadow-2xl animate-in zoom-in-95 duration-500">
@@ -156,8 +163,8 @@ export default function App() {
 
       {/* --- GŁÓWNA ZAWARTOŚĆ --- */}
       <main className="flex-1 overflow-y-auto pt-16 md:pt-0 pb-20 md:pb-0 relative scroll-smooth">
-        {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} />}
-        {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} />}
+        {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} navigateToTrailsWithFilter={navigateToTrailsWithFilter} />}
+        {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} activeFilter={activeFilter} setActiveFilter={setActiveFilter} />}
         {activeTab === 'planner' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
         {activeTab === 'chat' && <ChatAssistantView />}
         {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
@@ -179,11 +186,10 @@ export default function App() {
 // ==========================================
 // WIDOK: HOME (PULPIT)
 // ==========================================
-function HomeView({ setActiveTab }) {
+function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
       
-      {/* Powitanie i Pogoda */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
         <div className="md:col-span-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-xl flex justify-between items-center relative overflow-hidden">
           <div className="absolute right-0 top-0 opacity-10 scale-150 transform translate-x-1/4 -translate-y-1/4"><Sun size={200} /></div>
@@ -200,7 +206,6 @@ function HomeView({ setActiveTab }) {
           </div>
         </div>
 
-        {/* Panel GOPR / Bezpieczeństwo */}
         <div className="bg-red-50 rounded-3xl p-6 border border-red-100 flex flex-col justify-center relative overflow-hidden group">
           <div className="absolute -right-6 -top-6 bg-red-100 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
           <AlertTriangle size={32} className="text-red-500 mb-4 relative z-10" />
@@ -218,12 +223,12 @@ function HomeView({ setActiveTab }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <QuickActionButton icon={<CalendarDays />} label="Kreator Trasy" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('planner')} />
           <QuickActionButton icon={<MessageCircle />} label="Asystent Chat" color="bg-purple-100 text-purple-700" iconColor="bg-purple-500" onClick={() => setActiveTab('chat')} />
-          <QuickActionButton icon={<Map />} label="Mapa Szlaków" color="bg-orange-100 text-orange-700" iconColor="bg-orange-500" onClick={() => setActiveTab('trails')} />
-          <QuickActionButton icon={<Coffee />} label="Schroniska" color="bg-amber-100 text-amber-800" iconColor="bg-amber-500" onClick={() => setActiveTab('trails')} />
+          <QuickActionButton icon={<Map />} label="Mapa Szlaków" color="bg-orange-100 text-orange-700" iconColor="bg-orange-500" onClick={() => navigateToTrailsWithFilter('Wszystkie')} />
+          
+          <QuickActionButton icon={<Utensils />} label="Schroniska" color="bg-amber-100 text-amber-800" iconColor="bg-amber-500" onClick={() => navigateToTrailsWithFilter('🍲 Gastronomia')} />
         </div>
       </div>
 
-      {/* Polecane */}
       <div>
         <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2"><Heart size={20} className="text-rose-500" /> Polecane na dzisiejsze warunki</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -240,7 +245,7 @@ function HomeView({ setActiveTab }) {
               <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><History size={16} className="text-amber-500"/> 1h 45m</span>
               <span className="bg-red-100 text-red-700 px-2 py-1 rounded-lg">Czerwony szlak</span>
             </div>
-            <button onClick={() => setActiveTab('trails')} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition">
+            <button onClick={() => navigateToTrailsWithFilter('Ustroń')} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition">
               Zobacz szczegóły
             </button>
           </div>
@@ -252,15 +257,50 @@ function HomeView({ setActiveTab }) {
 }
 
 // ==========================================
-// WIDOK: SZLAKI I MAPA 
+// WIDOK: SZLAKI I MAPA (Z Opcją Zoom i Drag)
 // ==========================================
-function TrailsView({ onAddTrip }) {
-  const [activeFilter, setActiveFilter] = useState('Wszystkie');
+function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   const [selectedPin, setSelectedPin] = useState(null);
   const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
   
-  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Brenna'];
-  const filteredTrails = activeFilter === 'Wszystkie' ? TRAILS_DATA : TRAILS_DATA.filter(t => t.location === activeFilter);
+  // Zmienne mapy interaktywnej
+  const [scale, setScale] = useState(1);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Istebna', 'Brenna', '🍲 Gastronomia'];
+  
+  // Inteligentne filtrowanie (w tym dla "Gastronomii")
+  const filteredTrails = TRAILS_DATA.filter(t => {
+      if (activeFilter === 'Wszystkie') return true;
+      if (activeFilter === '🍲 Gastronomia') return t.food && t.food !== "Prowiant własny" && !t.food.includes("Brak");
+      return t.location === activeFilter;
+  });
+
+  // Obsługa przeciągania mapy
+  const handleMouseDown = (e) => {
+      setIsDragging(true);
+      setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  };
+  const handleMouseMove = (e) => {
+      if (isDragging) setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+  };
+  const handleMouseUp = () => setIsDragging(false);
+
+  // Obsługa dla dotyku (Smartfony)
+  const handleTouchStart = (e) => {
+      setIsDragging(true);
+      setDragStart({ x: e.touches[0].clientX - position.x, y: e.touches[0].clientY - position.y });
+  };
+  const handleTouchMove = (e) => {
+      if (isDragging) setPosition({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
+  };
+
+  // Zoom mapy
+  const handleZoomIn = () => setScale(s => Math.min(s + 0.5, 3));
+  const handleZoomOut = () => setScale(s => Math.max(s - 0.5, 0.5));
+  const handleReset = () => { setScale(1); setPosition({x:0, y:0}); };
 
   return (
     <div className="h-full flex flex-col md:p-6 p-0 max-w-7xl mx-auto relative">
@@ -268,7 +308,9 @@ function TrailsView({ onAddTrip }) {
       {/* Nagłówek i Filtry */}
       <div className="bg-white md:bg-transparent p-4 md:p-0 border-b md:border-none border-slate-200 shrink-0 z-20">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-2xl text-slate-800">Eksploruj Region</h2>
+          <h2 className="font-bold text-2xl text-slate-800">
+             {activeFilter === '🍲 Gastronomia' ? 'Schroniska na szlaku' : 'Eksploruj Region'}
+          </h2>
         </div>
         
         <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
@@ -276,7 +318,7 @@ function TrailsView({ onAddTrip }) {
             <button 
               key={f} onClick={() => { setActiveFilter(f); setSelectedPin(null); }}
               className={`px-5 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all shadow-sm
-                ${activeFilter === f ? 'bg-emerald-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
+                ${activeFilter === f ? (f.includes('Gastro') ? 'bg-amber-500 text-white' : 'bg-emerald-600 text-white') : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'}`}
             >
               {f}
             </button>
@@ -284,15 +326,17 @@ function TrailsView({ onAddTrip }) {
         </div>
       </div>
 
-      {/* Kontener dwukolumnowy */}
       <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden md:mt-2 relative">
         
         {/* LEWA: Lista Szlaków */}
         <div className={`w-full md:w-1/2 lg:w-5/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-32 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
+          {filteredTrails.length === 0 && (
+             <div className="text-center p-10 text-slate-400 font-medium">Brak wyników w tej kategorii.</div>
+          )}
           {filteredTrails.map(trail => (
             <div key={trail.id} 
               onMouseEnter={() => setSelectedPin(trail)}
-              className={`bg-white rounded-3xl p-5 shadow-sm border-2 transition-all cursor-pointer ${selectedPin?.id === trail.id ? 'border-emerald-500 shadow-md' : 'border-slate-100 hover:border-slate-300'}`}
+              className={`bg-white rounded-3xl p-5 shadow-sm border-2 transition-all cursor-pointer ${selectedPin?.id === trail.id ? 'border-emerald-500 shadow-md scale-[1.02]' : 'border-slate-100 hover:border-slate-300'}`}
             >
               <div className="flex items-start gap-4 mb-4">
                 <div className={`w-3 h-14 rounded-full shrink-0 ${trail.color}`}></div>
@@ -300,7 +344,7 @@ function TrailsView({ onAddTrip }) {
                   <h3 className="font-bold text-lg text-slate-800 leading-tight">{trail.name}</h3>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider">{trail.location}</span>
-                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${trail.difficulty==='Łatwa'?'bg-green-100 text-green-700':trail.difficulty==='Średnia'?'bg-orange-100 text-orange-700':'bg-red-100 text-red-700'}`}>{trail.difficulty}</span>
+                    <span className={`text-[10px] font-bold uppercase px-2 py-1 rounded ${trail.difficulty==='Łatwa' || trail.difficulty==='Bardzo Łatwa' ?'bg-green-100 text-green-700':trail.difficulty==='Średnia'?'bg-orange-100 text-orange-700':'bg-red-100 text-red-700'}`}>{trail.difficulty}</span>
                     {trail.familyFriendly && <span className="text-[10px] font-bold uppercase px-2 py-1 rounded bg-blue-100 text-blue-700">Rodzinny 👶</span>}
                   </div>
                 </div>
@@ -312,44 +356,81 @@ function TrailsView({ onAddTrip }) {
                 <div className="text-center"><p className="text-[10px] text-slate-500 font-bold uppercase mb-1">W górę</p><p className="font-black text-slate-800 text-sm">{trail.elevation}</p></div>
               </div>
 
-              <div className="flex items-start gap-3 bg-blue-50/50 rounded-xl p-3 mb-4">
-                <Train size={18} className="text-blue-500 shrink-0" />
-                <p className="text-xs text-slate-600 leading-relaxed">{trail.transport}</p>
+              <div className="flex flex-col gap-2 mb-4">
+                <div className="flex items-start gap-3 bg-blue-50/50 rounded-xl p-3">
+                  <Train size={18} className="text-blue-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-slate-600 leading-relaxed"><b>Dojazd:</b> {trail.transport}</p>
+                </div>
+                {/* Wyróżniony blok jedzenia */}
+                <div className={`flex items-start gap-3 rounded-xl p-3 ${activeFilter === '🍲 Gastronomia' ? 'bg-amber-100 border border-amber-200' : 'bg-amber-50/50'}`}>
+                  <Utensils size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-slate-800 leading-relaxed"><b>Jedzenie:</b> {trail.food}</p>
+                </div>
               </div>
 
               <div className="flex gap-2">
-                <button onClick={(e) => { e.stopPropagation(); setIsMapVisibleOnMobile(true); setSelectedPin(trail); }} className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2.5 rounded-xl text-sm font-bold flex md:hidden items-center justify-center gap-2 transition"><MapPin size={16} /> Zobacz na Mapie</button>
+                <button onClick={(e) => { e.stopPropagation(); setIsMapVisibleOnMobile(true); setSelectedPin(trail); }} className="flex-1 bg-slate-100 text-slate-700 hover:bg-slate-200 py-2.5 rounded-xl text-sm font-bold flex md:hidden items-center justify-center gap-2 transition"><MapPin size={16} /> Pokaż na Mapie</button>
                 <button onClick={(e) => { e.stopPropagation(); onAddTrip(trail); }} className="flex-1 bg-emerald-600 text-white hover:bg-emerald-500 py-2.5 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition"><Plus size={16} /> Zapisz</button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* PRAWA: Duża Mapa */}
+        {/* PRAWA: Duża Interaktywna Mapa */}
         <div className={`w-full md:w-1/2 lg:w-7/12 relative bg-emerald-50 rounded-none md:rounded-3xl border border-emerald-200 overflow-hidden shadow-inner flex flex-col min-h-[500px] h-full ${!isMapVisibleOnMobile ? 'hidden md:flex' : 'flex'}`}>
-          <div className="absolute inset-0 opacity-20 pointer-events-none">
-            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="topo" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><path d="M10,10 Q40,40 90,10 M20,30 Q50,60 90,30 M10,50 Q40,80 80,50 M30,70 Q60,90 90,70" fill="none" stroke="#059669" strokeWidth="1" opacity="0.5"/><path d="M0,20 Q30,50 80,20 M10,40 Q40,70 80,40" fill="none" stroke="#047857" strokeWidth="0.5" opacity="0.3"/></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#topo)" /></svg>
+          
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-2 rounded-lg text-xs font-bold text-emerald-800 shadow-sm border border-emerald-100 z-20 flex flex-col gap-1">
+             <span>Mapa Beskidu Śląskiego</span>
+             <span className="text-[10px] text-slate-500 font-normal">Przeciągnij by przesunąć mapę</span>
           </div>
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-xs font-bold text-emerald-800 shadow-sm border border-emerald-100 z-10">Mapa Beskidu Śląskiego</div>
 
-          <div className="relative w-full h-full">
-            {filteredTrails.map(trail => (
-              <div 
-                key={`pin-${trail.id}`}
-                onClick={() => setSelectedPin(trail)}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 hover:scale-110 transition-transform z-10 cursor-pointer"
-                style={{ left: trail.mapX, top: trail.mapY }}
-              >
-                <div className="relative flex flex-col items-center">
-                  <div className={`p-1 rounded-full bg-white shadow-md ${selectedPin?.id === trail.id ? 'ring-4 ring-emerald-400 scale-110' : ''} transition-all`}>
-                    <MapPin size={24} className={`${trail.color.replace('bg-', 'text-')} fill-current`} />
-                  </div>
-                  <span className={`absolute top-full mt-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-all ${selectedPin?.id === trail.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                    {trail.name}
-                  </span>
+          {/* Kontrolki Zoom */}
+          <div className="absolute right-4 top-4 flex flex-col gap-2 z-20">
+             <button onClick={handleZoomIn} className="w-10 h-10 bg-white rounded-xl shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition"><Plus size={20}/></button>
+             <button onClick={handleZoomOut} className="w-10 h-10 bg-white rounded-xl shadow-md border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50 hover:text-emerald-600 transition"><Minus size={20}/></button>
+             <button onClick={handleReset} className="w-10 h-10 bg-emerald-600 rounded-xl shadow-md border border-emerald-700 flex items-center justify-center text-white hover:bg-emerald-500 transition mt-2" title="Wyśrodkuj"><Maximize size={18}/></button>
+          </div>
+
+          {/* Kontener Mapy (Drag & Scale) */}
+          <div 
+             className={`w-full h-full relative ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+             onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}
+             onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleMouseUp}
+          >
+             <div 
+                className="absolute inset-0 w-full h-full"
+                style={{ 
+                  transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`, 
+                  transformOrigin: 'center center',
+                  transition: isDragging ? 'none' : 'transform 0.1s ease-out'
+                }}
+             >
+                <div className="absolute inset-0 opacity-20 pointer-events-none">
+                  <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="topo" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse"><path d="M10,10 Q40,40 90,10 M20,30 Q50,60 90,30 M10,50 Q40,80 80,50 M30,70 Q60,90 90,70" fill="none" stroke="#059669" strokeWidth="1" opacity="0.5"/><path d="M0,20 Q30,50 80,20 M10,40 Q40,70 80,40" fill="none" stroke="#047857" strokeWidth="0.5" opacity="0.3"/></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#topo)" /></svg>
                 </div>
-              </div>
-            ))}
+
+                {filteredTrails.map(trail => (
+                  <div 
+                    key={`pin-${trail.id}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedPin(trail); }}
+                    className="absolute transform -translate-x-1/2 -translate-y-1/2 hover:scale-125 transition-transform z-10 cursor-pointer"
+                    style={{ left: trail.mapX, top: trail.mapY }}
+                  >
+                    <div className="relative flex flex-col items-center">
+                      <div className={`p-1.5 rounded-full shadow-md ${selectedPin?.id === trail.id ? 'ring-4 ring-emerald-400 scale-125 bg-white' : 'bg-white/80 backdrop-blur'} transition-all`}>
+                        {/* Ikona sztućców jeśli to filter Gastro */}
+                        {activeFilter === '🍲 Gastronomia' ? 
+                           <Utensils size={24} className={`${trail.color.replace('bg-', 'text-')} fill-current`} /> :
+                           <MapPin size={24} className={`${trail.color.replace('bg-', 'text-')} fill-current`} />
+                        }
+                      </div>
+                      <span className={`absolute top-full mt-2 bg-slate-900 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none transition-all ${selectedPin?.id === trail.id || scale > 1.5 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
+                        {trail.name}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+             </div>
           </div>
         </div>
       </div>
@@ -369,11 +450,11 @@ function TrailsView({ onAddTrip }) {
 }
 
 // ==========================================
-// WIDOK: OSOBISTY ASYSTENT CHAT
+// WIDOK: OSOBISTY ASYSTENT CHAT (Mądrzejszy!)
 // ==========================================
 function ChatAssistantView() {
   const [msg, setMsg] = useState("");
-  const [chat, setChat] = useState([{ role: 'ai', text: 'Cześć! Jestem Twoim osobistym asystentem górskim. Potrzebujesz porady jak się ubrać na Równicę, albo gdzie zjemy najlepszego pstrąga?' }]);
+  const [chat, setChat] = useState([{ role: 'ai', text: 'Cześć! Jestem Twoim przewodnikiem turystycznym po Beskidach. Zapytaj mnie o szlaki na Skrzyczne, albo gdzie zjemy najlepszą kwaśnicę!' }]);
   const [isLoading, setIsLoading] = useState(false);
   const chatEndRef = useRef(null);
 
@@ -391,13 +472,20 @@ function ChatAssistantView() {
     try {
       const isVercel = window.location.hostname.includes('vercel.app');
       let reply = "";
+      
+      // Budujemy kontekst dla AI z naszej aplikacji
+      const contextData = TRAILS_DATA.map(t => `${t.name} (Lokalizacja: ${t.location}, Jedzenie/Schroniska: ${t.food})`).join('; ');
+      const systemInstruction = `Jesteś bardzo pomocnym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk, Brenna, Istebna).
+Oto baza wiedzy z Twojej aplikacji: ${contextData}.
+WAŻNE OGRANICZENIE: Jesteś tylko czatem tekstowym. NIE MASZ dostępu do klikania na ekranie ani pokazywania miejsc na interaktywnej mapie. 
+Jeśli użytkownik prosi "pokaż na mapie" lub "gdzie to jest", odpowiedz opisowo (np. "Niestety nie mogę kliknąć na mapie, ale to schronisko znajdziesz w sekcji Szlaki i Mapa w aplikacji. Szlak znajduje się w...").
+Zawsze odpowiadaj krótko i przyjaźnie. Pytanie turysty: ${msg}`;
 
       if (isVercel) {
-        // ZMIANA: Uderzamy do /api/chat zamiast /api/gemini
         const res = await fetch('/api/chat', {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
-           body: JSON.stringify({ prompt: `Jesteś bardzo pomocnym, przyjaznym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk). Udziel krótkiej, zwięzłej porady. Pytanie turysty: ${msg}` })
+           body: JSON.stringify({ prompt: systemInstruction })
         });
         
         if (!res.ok) throw new Error("Vercel error");
@@ -410,8 +498,8 @@ function ChatAssistantView() {
            method: 'POST',
            headers: { 'Content-Type': 'application/json' },
            body: JSON.stringify({
-              contents: [{ parts: [{ text: msg }] }],
-              systemInstruction: { parts: [{ text: "Jesteś bardzo pomocnym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk). Udzielaj krótkich, przyjaznych porad." }] }
+              contents: [{ parts: [{ text: systemInstruction }] }],
+              systemInstruction: { parts: [{ text: "Jesteś pomocnym asystentem." }] }
            })
         });
         if (!res.ok) throw new Error("Canvas error");
@@ -422,7 +510,7 @@ function ChatAssistantView() {
       setChat([...newChat, { role: 'ai', text: reply }]);
     } catch (e) {
       console.error(e);
-      setChat([...newChat, { role: 'ai', text: "⚠️ Błąd połączenia z serwerem. Jeśli jesteś na Vercelu, upewnij się, że dodałeś klucz 'OPENAI_API_KEY' w zakładce Settings > Environment Variables!" }]);
+      setChat([...newChat, { role: 'ai', text: "⚠️ Błąd połączenia z serwerem. Jeśli jesteś na Vercelu, upewnij się, że dodałeś klucz 'OPENAI_API_KEY'!" }]);
     } finally {
       setIsLoading(false);
     }
@@ -500,7 +588,7 @@ function AIPlannerView({ onSavePlan }) {
 
       setGeneratedPlan({
         title: `Twój idealny wyjazd (${preferences.days} dni)`,
-        description: preferences.companions === 'kids' ? "Wybrałem trasy bezpieczne, łagodne i pełne atrakcji dla najmłodszych." : "Oto optymalny plan łączący najpiękniejsze widoki Beskidu Śląskiego.",
+        description: preferences.companions === 'kids' ? "Wybrałem trasy spacerowe i pełne atrakcji dla najmłodszych." : "Oto optymalny plan obejmujący najciekawsze szlaki i schroniska Beskidu Śląskiego.",
         days: selectedTrails
       });
       setIsGenerating(false);
@@ -512,16 +600,15 @@ function AIPlannerView({ onSavePlan }) {
     <div className="p-4 md:p-8 max-w-4xl mx-auto h-full flex flex-col pb-24 md:pb-8">
       <div className="bg-emerald-900 rounded-3xl p-6 md:p-10 text-white shadow-xl relative overflow-hidden shrink-0 mb-6">
         <div className="absolute -right-10 -bottom-10 opacity-20"><CalendarDays size={150} /></div>
-        <h2 className="text-2xl md:text-4xl font-black mb-2 relative z-10">Kreator Trasy</h2>
-        <p className="text-emerald-200 max-w-lg relative z-10">Zamiast przeglądać setki map, powiedz mi czego potrzebujesz. Dobiorę dla Ciebie idealny harmonogram wyjazdu krok po kroku.</p>
+        <h2 className="text-2xl md:text-4xl font-black mb-2 relative z-10">Kreator Planu Wyjazdu</h2>
+        <p className="text-emerald-200 max-w-lg relative z-10">Zamiast przeglądać dziesiątki stron, powiedz mi czego potrzebujesz. Zbuduję harmonogram wycieczek w Beskidy specjalnie dla Ciebie.</p>
       </div>
 
       <div className="flex-1 bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-10 overflow-y-auto custom-scrollbar">
-        {/* KROK 1 */}
         {step === 1 && (
           <div className="space-y-8 animate-in fade-in">
             <div>
-              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><CalendarDays size={20} className="text-emerald-500"/> Ile dni spędzisz w górach?</h3>
+              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><CalendarDays size={20} className="text-emerald-500"/> Ile dni spędzisz w okolicy?</h3>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                   <button key={num} onClick={() => setPreferences({...preferences, days: num})} className={`py-3 rounded-xl font-bold border-2 transition-all ${preferences.days === num ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>{num}</button>
@@ -542,11 +629,10 @@ function AIPlannerView({ onSavePlan }) {
           </div>
         )}
 
-        {/* KROK 2 */}
         {step === 2 && (
           <div className="space-y-8 animate-in slide-in-from-right-8">
              <div>
-              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><Mountain size={20} className="text-emerald-500"/> Jaka kondycja?</h3>
+              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><TreePine size={20} className="text-emerald-500"/> Jaka intensywność?</h3>
               <div className="space-y-3">
                 <button onClick={() => setPreferences({...preferences, difficulty: 'easy'})} className={`w-full text-left p-4 rounded-xl font-bold border-2 transition-all ${preferences.difficulty === 'easy' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}>Rekreacyjna (Spacery, doliny, wózki)</button>
                 <button onClick={() => setPreferences({...preferences, difficulty: 'medium'})} className={`w-full text-left p-4 rounded-xl font-bold border-2 transition-all ${preferences.difficulty === 'medium' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-100 bg-white text-slate-500'}`}>Średnia (Regularnie chodzę po górach)</button>
@@ -557,13 +643,12 @@ function AIPlannerView({ onSavePlan }) {
             <div className="flex gap-4">
                <button onClick={() => setStep(1)} className="px-6 py-4 rounded-2xl font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition">Wróć</button>
                <button onClick={generatePlan} disabled={isGenerating} className="flex-1 bg-slate-900 text-white py-4 rounded-2xl font-black text-lg hover:bg-slate-800 transition shadow-lg flex justify-center items-center gap-2">
-                 {isGenerating ? <><Loader2 className="animate-spin" size={24}/> Obliczam...</> : <><Sparkles size={20}/> Stwórz Plan</>}
+                 {isGenerating ? <><Loader2 className="animate-spin" size={24}/> Tworzę harmonogram...</> : <><Sparkles size={20}/> Stwórz Plan</>}
                </button>
             </div>
           </div>
         )}
 
-        {/* KROK 3 */}
         {step === 3 && generatedPlan && (
           <div className="animate-in zoom-in-95 duration-500 space-y-6">
             <div className="bg-emerald-50 p-6 rounded-2xl border border-emerald-100">
@@ -597,7 +682,7 @@ function AIPlannerView({ onSavePlan }) {
 
                      <div className="flex flex-wrap gap-2">
                        <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><History size={12}/> {trail.time}</span>
-                       <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><Mountain size={12}/> {trail.elevation}</span>
+                       <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-1 rounded flex items-center gap-1"><Navigation size={12}/> {trail.distance}</span>
                      </div>
                    </div>
                 </div>
@@ -641,7 +726,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
     
     try {
         const isVercel = window.location.hostname.includes('vercel.app');
-        // ZMIANA: Wysyłamy do serwera czysty prompt wpisany przez Ciebie!
         const hiddenInstruction = aiPrompt;
         let data;
 
@@ -655,17 +739,18 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
 
             if (!res.ok) {
                 const err = await res.json().catch(()=>({}));
-                throw new Error("Błąd Vercel API. Upewnij się, że STABILITY_API_KEY jest dodany do zmiennych środowiskowych! " + (err.error || ""));
+                throw new Error("Błąd Vercel API. Upewnij się, że STABILITY_API_KEY jest dodany! " + (err.error || ""));
             }
             data = await res.json();
         } else {
             const apiKey = ""; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
+            const localPrompt = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic landscape in the Beskidy mountains, vibrant colors, nature.`;
             const fallbackRes = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    instances: [{ prompt: hiddenInstruction }],
+                    instances: [{ prompt: localPrompt }],
                     parameters: { sampleCount: 1 }
                 })
             });
@@ -685,7 +770,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         }
     } catch (e) {
         console.error("Błąd generowania AI", e);
-        alert(`BŁĄD: ${e.message}\n\nJeśli jesteś na Vercelu, musisz mieć w "Settings -> Environment Variables" klucze OPENAI_API_KEY oraz STABILITY_API_KEY.`);
+        alert(`BŁĄD: ${e.message}`);
     } finally {
         setIsGenerating(false);
     }
@@ -712,7 +797,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                       <div className="flex flex-wrap gap-3">
                           <button onClick={() => setIsTracking(!isTracking)} className={`px-5 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md border btn-bounce ${isTracking ? 'bg-red-50 text-red-600 border-red-200' : 'bg-blue-50 text-blue-600 border-blue-200 hover:bg-blue-100'}`}>
                               <Activity size={20} className={isTracking ? "animate-pulse" : ""} />
-                              {isTracking ? 'Zatrzymaj GPS' : 'Rejestruj trasę'}
+                              {isTracking ? 'Zatrzymaj GPS' : 'Rejestruj spacer'}
                           </button>
                           
                           {activeTrip.media.length > 0 && (
@@ -723,7 +808,6 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                       </div>
                   </div>
 
-                  {/* GALERIA */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                       {activeTrip.media.map((url, idx) => (
                           <div key={idx} className="aspect-square bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-sm relative group cursor-pointer">
@@ -740,15 +824,14 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                       </div>
                   </div>
 
-                  {/* MALARZ AI */}
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 md:p-8 border border-indigo-100 relative overflow-hidden shadow-inner">
                       <div className="absolute right-0 top-0 opacity-10 translate-x-4 -translate-y-4"><Paintbrush size={160} /></div>
-                      <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz na szlaku (AI)</h3>
-                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
+                      <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz z Beskidów (AI)</h3>
+                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś na szlaku, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
                       <div className="flex flex-col md:flex-row gap-3 relative z-10">
                           <input 
                               value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} 
-                              placeholder="Np. jeleń we mgle na szczycie Czantorii..." 
+                              placeholder="Np. jaszczurka na szlaku na Klimczok..." 
                               className="flex-1 rounded-xl px-5 py-4 outline-none border border-indigo-200 focus:border-indigo-400 bg-white/80 backdrop-blur font-medium"
                               onKeyPress={e => e.key === 'Enter' && handleGenerateAI()}
                           />
@@ -768,11 +851,11 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
       <div className="flex justify-between items-center bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
         <div>
           <h2 className="font-black text-2xl text-slate-800">Moje Wyprawy</h2>
-          <p className="text-slate-500 text-sm mt-1">Zapisane statystyki i wspomnienia.</p>
+          <p className="text-slate-500 text-sm mt-1">Zapisane statystyki i wspomnienia z wycieczek.</p>
         </div>
         <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex flex-col items-center justify-center font-black leading-none">
           <span className="text-xl">{savedTrips.length}</span>
-          <span className="text-[10px] uppercase">Szlaki</span>
+          <span className="text-[10px] uppercase">Wyprawy</span>
         </div>
       </div>
 
