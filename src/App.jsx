@@ -4,7 +4,7 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2, RefreshCw
 } from 'lucide-react';
 
 export const TRAILS_DATA = [
@@ -22,7 +22,7 @@ export const TRAILS_DATA = [
   { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", lat: 49.605, lng: 18.822, pois: ['Schronisko'], familyFriendly: false }
 ];
 
-function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip }) {
+function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip, isActive }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersLayer = useRef(null);
@@ -83,60 +83,14 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     }
   }, [isLoaded]);
 
+  // --- NAPRAWA BIAŁEGO TŁA NA SMARTFONIE ---
   useEffect(() => {
-    if (!mapInstance.current || !markersLayer.current) return;
-    const L = window.L;
-    markersLayer.current.clearLayers();
-
-    trails.forEach(trail => {
-      const isFood = activeFilter === '🍲 Gastronomia';
-      const colorMap = {
-        'bg-red-500': '#ef4444', 'bg-yellow-400': '#eab308', 'bg-blue-500': '#3b82f6',
-        'bg-green-500': '#22c55e', 'bg-purple-500': '#a855f7', 'bg-gray-800': '#1f2937'
-      };
-      const hexColor = colorMap[trail.color] || '#10b981';
-      const isSelected = selectedPin?.id === trail.id;
-
-      const iconHtml = `
-        <div style="background-color: white; padding: 4px; border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.4); border: 3px solid ${hexColor}; font-size: 16px; text-align: center; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'}; transition: transform 0.2s;">
-          ${isFood ? '🍲' : '📍'}
-        </div>`;
-
-      const customIcon = L.divIcon({
-        className: 'custom-leaflet-pin',
-        html: iconHtml,
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
-        popupAnchor: [0, -36]
-      });
-
-      const marker = L.marker([trail.lat, trail.lng], { icon: customIcon });
-      
-      const popupContent = document.createElement('div');
-      popupContent.innerHTML = `
-        <div class="p-1 font-sans" style="min-width: 200px;">
-          <h3 class="font-bold text-base mb-1 text-slate-800">${trail.name}</h3>
-          <p class="text-xs text-slate-500 mb-2">${trail.location} • ${trail.difficulty}</p>
-          <p class="text-xs bg-amber-50 p-2 rounded-lg border border-amber-100 mb-3 text-slate-800"><b>🍔 Gastronomia:</b> ${trail.food}</p>
-          <button id="save-btn-${trail.id}" style="width: 100%; background-color: #059669; color: white; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer;">Zapisz do Pamiętnika</button>
-        </div>
-      `;
-      
-      marker.bindPopup(popupContent);
-      
-      marker.on('popupopen', () => {
-        document.getElementById(`save-btn-${trail.id}`).addEventListener('click', () => {
-          onAddTrip(trail);
-        });
-      });
-
-      marker.on('click', () => {
-        setSelectedPin(trail);
-      });
-
-      markersLayer.current.addLayer(marker);
-    });
-  }, [trails, activeFilter, selectedPin, onAddTrip]);
+    if (mapInstance.current) {
+        setTimeout(() => {
+            mapInstance.current.invalidateSize();
+        }, 350); 
+    }
+  }, [isActive]);
 
   useEffect(() => {
     if (mapInstance.current && selectedPin) {
@@ -244,6 +198,25 @@ export default function App() {
       setActiveTab('trails');
   }
 
+  // --- ROZWIĄZANIE NA STAŁE DLA AKTUALIZACJI PWA ---
+  const forceUpdatePWA = () => {
+      if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then((registrations) => {
+              for (let registration of registrations) {
+                  registration.unregister();
+              }
+          });
+      }
+      if ('caches' in window) {
+          caches.keys().then((keyList) => {
+              return Promise.all(keyList.map((key) => caches.delete(key)));
+          });
+      }
+      setTimeout(() => {
+          window.location.reload(true);
+      }, 800);
+  };
+
   if (!isAuthenticated) {
       return (
           <div className="h-screen w-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
@@ -303,6 +276,9 @@ export default function App() {
         </nav>
 
         <div className="p-4 border-t border-emerald-800">
+          <button onClick={forceUpdatePWA} className="w-full mb-3 bg-emerald-700/50 hover:bg-emerald-600 text-emerald-100 text-xs py-2.5 rounded-xl transition font-bold flex justify-center items-center gap-2 shadow-inner">
+            <RefreshCw size={16} /> Zaktualizuj Aplikację
+          </button>
           <div className="bg-emerald-800/50 rounded-xl p-4 flex items-center gap-3">
             <div className="w-10 h-10 bg-emerald-700 rounded-full flex items-center justify-center"><User size={20} /></div>
             <div className="flex-1">
@@ -322,9 +298,14 @@ export default function App() {
           <Mountain size={24} />
           <h1 className="text-xl font-bold tracking-tight">Beskidy AI</h1>
         </div>
-        <button onClick={() => { setIsAuthenticated(false); localStorage.removeItem('beskidyAuth'); }} className="p-2 bg-emerald-700 rounded-full">
-          <LogOut size={18} />
-        </button>
+        <div className="flex gap-2">
+          <button onClick={forceUpdatePWA} className="p-2 bg-emerald-700 rounded-full text-emerald-100 active:scale-95 transition-transform" title="Aktualizuj (Wymusza pobranie)">
+            <RefreshCw size={18} />
+          </button>
+          <button onClick={() => { setIsAuthenticated(false); localStorage.removeItem('beskidyAuth'); }} className="p-2 bg-emerald-700 rounded-full">
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
 
       {/* --- GŁÓWNA ZAWARTOŚĆ --- */}
@@ -509,6 +490,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
              selectedPin={selectedPin} 
              setSelectedPin={setSelectedPin} 
              onAddTrip={onAddTrip} 
+             isActive={isMapVisibleOnMobile}
           />
         </div>
       </div>
@@ -646,20 +628,24 @@ function AIPlannerView({ onSavePlan }) {
       if (preferences.companions === 'kids') {
         selectedTrails = TRAILS_DATA.filter(t => t.familyFriendly);
       } else if (preferences.difficulty === 'hard') {
-        selectedTrails = TRAILS_DATA.filter(t => t.difficulty !== 'Bardzo Łatwa');
+        selectedTrails = TRAILS_DATA.filter(t => t.difficulty !== 'Bardzo Łatwa' && t.difficulty !== 'Łatwa');
       } else {
         selectedTrails = TRAILS_DATA;
       }
       
-      while(selectedTrails.length < preferences.days) {
-          selectedTrails = [...selectedTrails, ...selectedTrails];
+      // TASOWANIE (LOSOWOŚĆ) ABY PLAN BYŁ ZAWSZE INNY
+      let shuffledTrails = [...selectedTrails].sort(() => Math.random() - 0.5);
+      
+      let finalPlan = [];
+      while(finalPlan.length < preferences.days) {
+          finalPlan = [...finalPlan, ...shuffledTrails];
       }
-      selectedTrails = selectedTrails.slice(0, preferences.days);
+      finalPlan = finalPlan.slice(0, preferences.days);
 
       setGeneratedPlan({
         title: `Twój idealny wyjazd (${preferences.days} dni)`,
         description: preferences.companions === 'kids' ? "Wybrałem trasy spacerowe i pełne atrakcji dla najmłodszych." : "Oto optymalny plan obejmujący najciekawsze szlaki i schroniska Beskidu Śląskiego.",
-        days: selectedTrails
+        days: finalPlan
       });
       setIsGenerating(false);
       setStep(3);
