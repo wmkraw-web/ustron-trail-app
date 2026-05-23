@@ -7,7 +7,6 @@ import {
   Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2
 } from 'lucide-react';
 
-// --- BAZA DANYCH SZLAKÓW Z PRAWDZIWYMI KOORDYNATAMI GPS (Beskidy) ---
 export const TRAILS_DATA = [
   { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", lat: 49.679, lng: 18.791, pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
   { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", lat: 49.713, lng: 18.841, pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
@@ -23,17 +22,16 @@ export const TRAILS_DATA = [
   { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", lat: 49.605, lng: 18.822, pois: ['Schronisko'], familyFriendly: false }
 ];
 
-// --- INTELIGENTNY KOMPONENT MAPY LEAFLET (Wczytywanie Dynamiczne) ---
 function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
   const markersLayer = useRef(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [locError, setLocError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
     
-    // Wstrzykujemy skrypty Leaflet w locie do DOM, unikając importów
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link');
       link.id = 'leaflet-css';
@@ -56,7 +54,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     return () => { isMounted = false; };
   }, []);
 
-  // Inicjalizacja Mapy
   useEffect(() => {
     if (isLoaded && mapRef.current && !mapInstance.current) {
       const L = window.L;
@@ -70,10 +67,22 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
       
       mapInstance.current = map;
       markersLayer.current = L.featureGroup().addTo(map);
+
+      // KLUCZOWA POPRAWKA DLA PWA NA SMARTFONIE:
+      // Rozwiązuje problem z białym tłem mapy, gdy kontener jest odkrywany po kliknięciu.
+      const resizeObserver = new ResizeObserver(() => {
+        if (mapInstance.current) {
+          mapInstance.current.invalidateSize();
+        }
+      });
+      resizeObserver.observe(mapRef.current);
+
+      return () => {
+        resizeObserver.disconnect();
+      };
     }
   }, [isLoaded]);
 
-  // Aktualizacja Pinezek
   useEffect(() => {
     if (!mapInstance.current || !markersLayer.current) return;
     const L = window.L;
@@ -129,7 +138,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     });
   }, [trails, activeFilter, selectedPin, onAddTrip]);
 
-  // Płynne przesuwanie kamery do wybranego punktu
   useEffect(() => {
     if (mapInstance.current && selectedPin) {
       mapInstance.current.flyTo([selectedPin.lat, selectedPin.lng], 14, { duration: 1.5 });
@@ -137,14 +145,19 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
   }, [selectedPin]);
 
   const locateMe = () => {
+    setLocError("");
     if (navigator.geolocation && mapInstance.current) {
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude } = pos.coords;
         mapInstance.current.flyTo([latitude, longitude], 14);
         window.L.marker([latitude, longitude]).addTo(mapInstance.current).bindPopup('Jesteś tutaj!').openPopup();
       }, () => {
-        alert("Brak dostępu do lokalizacji.");
+        setLocError("Brak dostępu do GPS");
+        setTimeout(() => setLocError(""), 3000);
       });
+    } else {
+        setLocError("Geolokalizacja nieobsługiwana");
+        setTimeout(() => setLocError(""), 3000);
     }
   };
 
@@ -157,6 +170,13 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
         </div>
       )}
       <div ref={mapRef} className="w-full h-full" style={{ zIndex: 1 }}></div>
+      
+      {locError && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-lg z-[400]">
+              {locError}
+          </div>
+      )}
+
       <button 
          onClick={locateMe}
          className="absolute bottom-6 right-4 z-[400] bg-white text-blue-600 p-3 rounded-full shadow-xl border border-slate-200 hover:bg-blue-50 transition"
@@ -172,6 +192,7 @@ export default function App() {
   const SECRET_PIN = "BESKIDY2026"; 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
+  const [authError, setAuthError] = useState('');
 
   const [activeTab, setActiveTab] = useState('home'); 
   const [activeFilter, setActiveFilter] = useState('Wszystkie');
@@ -189,9 +210,10 @@ export default function App() {
   const handleLogin = () => {
     if (passwordInput === SECRET_PIN) {
         setIsAuthenticated(true);
+        setAuthError('');
         localStorage.setItem('beskidyAuth', 'true');
     } else {
-        alert('Nieprawidłowy kod dostępu!');
+        setAuthError('Nieprawidłowy kod dostępu!');
         setPasswordInput('');
     }
   };
@@ -233,8 +255,10 @@ export default function App() {
                       <Lock size={32} className="text-white" />
                   </div>
                   <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Osobisty Przewodnik</h1>
-                  <p className="text-emerald-100/70 text-sm mb-8">Aplikacja łączy się z płatnymi interfejsami API. Wymagany jest kod autoryzacji.</p>
+                  <p className="text-emerald-100/70 text-sm mb-8">Aplikacja wymaga podania kodu autoryzacji do API.</p>
                   
+                  {authError && <div className="bg-red-500/20 text-red-200 border border-red-500/50 p-3 rounded-lg mb-4 text-sm">{authError}</div>}
+
                   <input 
                       type="password" 
                       value={passwordInput} 
@@ -325,9 +349,6 @@ export default function App() {
   );
 }
 
-// ==========================================
-// WIDOK: HOME (PULPIT)
-// ==========================================
 function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
@@ -396,9 +417,6 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
   );
 }
 
-// ==========================================
-// WIDOK: SZLAKI I MAPA OPENSTREETMAP
-// ==========================================
 function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   const [selectedPin, setSelectedPin] = useState(null);
   const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
@@ -508,9 +526,6 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   );
 }
 
-// ==========================================
-// WIDOK: OSOBISTY ASYSTENT CHAT 
-// ==========================================
 function ChatAssistantView() {
   const [msg, setMsg] = useState("");
   const [chat, setChat] = useState([{ role: 'ai', text: 'Cześć! Jestem Twoim przewodnikiem turystycznym po Beskidach. Zapytaj mnie o szlaki na Skrzyczne, albo gdzie zjemy najlepszą kwaśnicę!' }]);
@@ -618,9 +633,6 @@ Zawsze odpowiadaj krótko i przyjaźnie. Pytanie turysty: ${msg}`;
   );
 }
 
-// ==========================================
-// WIDOK: KREATOR WYCIECZEK AI 
-// ==========================================
 function AIPlannerView({ onSavePlan }) {
   const [step, setStep] = useState(1);
   const [preferences, setPreferences] = useState({ days: 1, difficulty: 'easy', companions: 'adults' });
@@ -760,14 +772,12 @@ function AIPlannerView({ onSavePlan }) {
   );
 }
 
-// ==========================================
-// WIDOK: PAMIĘTNIK I MALARZ AI
-// ==========================================
 function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const [aiPrompt, setAiPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showMovie, setShowMovie] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (e) => {
@@ -781,6 +791,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
   const handleGenerateAI = async () => {
     if (!aiPrompt.trim()) return;
     setIsGenerating(true);
+    setErrorMsg("");
     
     try {
         const isVercel = window.location.hostname.includes('vercel.app');
@@ -813,7 +824,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                 })
             });
 
-            if (!fallbackRes.ok) throw new Error("Błąd serwera testowego Google");
+            if (!fallbackRes.ok) throw new Error("Błąd serwera testowego");
             data = await fallbackRes.json();
         }
 
@@ -828,7 +839,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         }
     } catch (e) {
         console.error("Błąd generowania AI", e);
-        alert(`BŁĄD: ${e.message}`);
+        setErrorMsg(`BŁĄD: ${e.message}`);
     } finally {
         setIsGenerating(false);
     }
@@ -886,6 +897,9 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
                       <div className="absolute right-0 top-0 opacity-10 translate-x-4 -translate-y-4"><Paintbrush size={160} /></div>
                       <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz z Beskidów (AI)</h3>
                       <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś na szlaku, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
+                      
+                      {errorMsg && <div className="mb-4 bg-red-100 text-red-700 p-3 rounded-lg text-sm relative z-10">{errorMsg}</div>}
+
                       <div className="flex flex-col md:flex-row gap-3 relative z-10">
                           <input 
                               value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} 
@@ -978,7 +992,6 @@ function MoviePlayer({ media, onClose, title }) {
   );
 }
 
-// --- Komponenty Pomocnicze UI ---
 function SidebarItem({ icon, label, isActive, onClick }) {
   return (
     <button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-emerald-800 text-white font-bold shadow-inner' : 'text-emerald-200 hover:bg-emerald-800/50 hover:text-white font-medium'}`}>
