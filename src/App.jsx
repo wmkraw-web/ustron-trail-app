@@ -7,7 +7,7 @@ import {
   Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2
 } from 'lucide-react';
 
-// --- BAZA DANYCH SZLAKÓW Z PRAWDZIWYMI KOORDYNATAMI GPS (Beskidy) ---
+// --- BAZA DANYCH SZLAKÓW Z KOORDYNATAMI GPS (Beskid Śląski) ---
 export const TRAILS_DATA = [
   { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", lat: 49.679, lng: 18.791, pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
   { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", lat: 49.713, lng: 18.841, pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
@@ -23,7 +23,7 @@ export const TRAILS_DATA = [
   { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", lat: 49.605, lng: 18.822, pois: ['Schronisko'], familyFriendly: false }
 ];
 
-// --- INTELIGENTNY KOMPONENT MAPY LEAFLET (Omijający błędy kompilacji) ---
+// --- INTELIGENTNY KOMPONENT MAPY LEAFLET (Wczytywanie Dynamiczne - Omija błędy npm!) ---
 function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip }) {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
@@ -33,7 +33,14 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
   useEffect(() => {
     let isMounted = true;
     
-    // 1. Ładowanie CSS Leaflet
+    // Ręczne wstrzyknięcie CSS tailwinda, jeśli korzystamy z CDN
+    if (!document.getElementById('tailwind-cdn')) {
+      const tailwindScript = document.createElement('script');
+      tailwindScript.id = 'tailwind-cdn';
+      tailwindScript.src = 'https://cdn.tailwindcss.com';
+      document.head.appendChild(tailwindScript);
+    }
+
     if (!document.getElementById('leaflet-css')) {
       const link = document.createElement('link');
       link.id = 'leaflet-css';
@@ -42,7 +49,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
       document.head.appendChild(link);
     }
 
-    // 2. Ładowanie JS Leaflet
     if (!document.getElementById('leaflet-js')) {
       const script = document.createElement('script');
       script.id = 'leaflet-js';
@@ -57,10 +63,10 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     return () => { isMounted = false; };
   }, []);
 
-  // Inicjalizacja Mapy
   useEffect(() => {
     if (isLoaded && mapRef.current && !mapInstance.current) {
       const L = window.L;
+      // Domyślne centrum mapy dla Beskidów (Ustroń/Wisła)
       const map = L.map(mapRef.current, { zoomControl: false }).setView([49.68, 18.85], 11);
       
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -74,7 +80,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     }
   }, [isLoaded]);
 
-  // Aktualizacja Pinezek
   useEffect(() => {
     if (!mapInstance.current || !markersLayer.current) return;
     const L = window.L;
@@ -84,7 +89,7 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
       const isFood = activeFilter === '🍲 Gastronomia';
       const colorMap = {
         'bg-red-500': '#ef4444', 'bg-yellow-400': '#eab308', 'bg-blue-500': '#3b82f6',
-        'bg-green-500': '#22c55e', 'bg-purple-500': '#a855f7', 'bg-gray-800': '#1f2937'
+        'bg-green-500': '#22c55e', 'bg-purple-500': '#a855f7', 'bg-pink-500': '#ec4899', 'bg-gray-800': '#1f2937'
       };
       const hexColor = colorMap[trail.color] || '#10b981';
       const isSelected = selectedPin?.id === trail.id;
@@ -130,7 +135,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
     });
   }, [trails, activeFilter, selectedPin, onAddTrip]);
 
-  // Płynne przesuwanie kamery do wybranego punktu
   useEffect(() => {
     if (mapInstance.current && selectedPin) {
       mapInstance.current.flyTo([selectedPin.lat, selectedPin.lng], 14, { duration: 1.5 });
@@ -171,7 +175,6 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
 
 // --- GŁÓWNA APLIKACJA ---
 export default function App() {
-  // Zabezpieczenie
   const SECRET_PIN = "BESKIDY2026"; 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -181,7 +184,7 @@ export default function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const [savedTrips, setSavedTrips] = useState([
-    { id: 101, name: "Zdobycie Czantorii", date: "12 Sierpnia 2025", duration: "2h 10m", media: [] }
+    { id: 101, name: "Zdobycie Czantorii", date: "12 Sierpnia 2026", duration: "2h 10m", media: [] }
   ]);
   const [activeTrip, setActiveTrip] = useState(null);
 
@@ -226,19 +229,18 @@ export default function App() {
       setActiveTab('trails');
   };
 
-  // EKRAN LOGOWANIA
   if (!isAuthenticated) {
       return (
           <div className="h-screen w-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden">
               <div className="absolute inset-0 opacity-30">
-                  <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920" alt="Góry tło" className="w-full h-full object-cover" />
+                  <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1920" alt="Krajobraz tło" className="w-full h-full object-cover" />
               </div>
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-3xl w-full max-w-md relative z-10 text-center shadow-2xl animate-in zoom-in-95 duration-500">
                   <div className="w-20 h-20 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-[0_0_30px_rgba(16,185,129,0.5)]">
                       <Lock size={32} className="text-white" />
                   </div>
-                  <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Osobisty Przewodnik</h1>
-                  <p className="text-emerald-100/70 text-sm mb-8">Aplikacja łączy się z płatnymi interfejsami API. Wymagany jest kod autoryzacji.</p>
+                  <h1 className="text-3xl font-black text-white mb-2 tracking-tight">Beskidy Przewodnik</h1>
+                  <p className="text-emerald-100/70 text-sm mb-8">Aplikacja łączy się z interfejsami AI. Wymagany jest kod autoryzacji.</p>
                   
                   <input 
                       type="password" 
@@ -276,7 +278,7 @@ export default function App() {
         </div>
 
         <nav className="flex-1 px-4 py-6 space-y-2">
-          <SidebarItem icon={<Mountain />} label="Pulpit Główny" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+          <SidebarItem icon={<MapPin />} label="Pulpit Główny" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
           <SidebarItem icon={<MapIcon />} label="Mapa i Szlaki" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
           <SidebarItem icon={<CalendarDays />} label="Planer Trasy" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
           <SidebarItem icon={<MessageCircle />} label="Asystent AI" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
@@ -319,7 +321,7 @@ export default function App() {
 
       {/* MOBILE BOTTOM NAV */}
       <nav className="md:hidden fixed bottom-0 w-full bg-white border-t border-slate-200 flex justify-around p-2 pb-safe shadow-[0_-10px_20px_rgba(0,0,0,0.05)] z-40">
-        <NavItem icon={<Mountain />} label="Start" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
+        <NavItem icon={<MapPin />} label="Start" isActive={activeTab === 'home'} onClick={() => setActiveTab('home')} />
         <NavItem icon={<MapIcon />} label="Mapa" isActive={activeTab === 'trails'} onClick={() => setActiveTab('trails')} />
         <NavItem icon={<CalendarDays />} label="Planer" isActive={activeTab === 'planner'} onClick={() => setActiveTab('planner')} />
         <NavItem icon={<MessageCircle />} label="Asystent" isActive={activeTab === 'chat'} onClick={() => setActiveTab('chat')} />
@@ -367,9 +369,9 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
       <div>
         <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">Szybkie menu</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <QuickActionButton icon={<CalendarDays />} label="Kreator Trasy" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('planner')} />
+          <QuickActionButton icon={<CalendarDays />} label="Kreator Planu" color="bg-emerald-100 text-emerald-700" iconColor="bg-emerald-500" onClick={() => setActiveTab('planner')} />
           <QuickActionButton icon={<MessageCircle />} label="Asystent Chat" color="bg-purple-100 text-purple-700" iconColor="bg-purple-500" onClick={() => setActiveTab('chat')} />
-          <QuickActionButton icon={<MapIcon />} label="Mapa Interaktywna" color="bg-blue-100 text-blue-700" iconColor="bg-blue-500" onClick={() => navigateToTrailsWithFilter('Wszystkie')} />
+          <QuickActionButton icon={<MapIcon />} label="Mapa Szlaków" color="bg-blue-100 text-blue-700" iconColor="bg-blue-500" onClick={() => navigateToTrailsWithFilter('Wszystkie')} />
           <QuickActionButton icon={<Utensils />} label="Schroniska" color="bg-amber-100 text-amber-800" iconColor="bg-amber-500" onClick={() => navigateToTrailsWithFilter('🍲 Gastronomia')} />
         </div>
       </div>
@@ -383,7 +385,7 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
                  <span className="text-white font-black text-xl">Czantoria Wielka</span>
                  <span className="text-slate-300 text-sm flex items-center gap-1"><MapPin size={14}/> Ustroń</span>
                </div>
-               <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800" alt="Góry" className="w-full h-full object-cover" />
+               <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800" alt="Zabytek" className="w-full h-full object-cover" />
             </div>
             <div className="flex justify-between items-center text-sm text-slate-600 mb-4 font-medium">
               <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><Navigation size={16} className="text-blue-500"/> 3.5 km</span>
@@ -408,7 +410,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   const [selectedPin, setSelectedPin] = useState(null);
   const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
 
-  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Istebna', 'Brenna', '🍲 Gastronomia'];
+  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Brenna', '🍲 Gastronomia'];
   
   const filteredTrails = TRAILS_DATA.filter(t => {
       if (activeFilter === 'Wszystkie') return true;
@@ -422,7 +424,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
       <div className="bg-white md:bg-transparent p-4 md:p-0 border-b md:border-none border-slate-200 shrink-0 z-20">
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-2xl text-slate-800">
-             {activeFilter === '🍲 Gastronomia' ? 'Schroniska na szlaku' : 'Eksploruj Region'}
+             {activeFilter === '🍲 Gastronomia' ? 'Gdzie zjeść w okolicy' : 'Eksploruj Region'}
           </h2>
         </div>
         
@@ -442,7 +444,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
       <div className="flex-1 flex flex-col md:flex-row gap-6 overflow-hidden md:mt-2 relative">
         
         {/* LEWA KOLUMNA: Lista */}
-        <div className={`w-full md:w-1/2 lg:w-5/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-32 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
+        <div className={`w-full md:w-1/2 lg:w-4/12 overflow-y-auto p-4 md:p-0 space-y-4 pb-32 md:pb-4 custom-scrollbar ${isMapVisibleOnMobile ? 'hidden md:block' : 'block'}`}>
           {filteredTrails.length === 0 && (
              <div className="text-center p-10 text-slate-400 font-medium">Brak wyników w tej kategorii.</div>
           )}
@@ -474,8 +476,8 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
                   <Train size={18} className="text-blue-500 shrink-0 mt-0.5" />
                   <p className="text-xs text-slate-600 leading-relaxed"><b>Dojazd:</b> {trail.transport}</p>
                 </div>
-                <div className={`flex items-start gap-3 rounded-xl p-3 ${activeFilter === '🍲 Gastronomia' ? 'bg-amber-100 border border-amber-200' : 'bg-amber-50/50'}`}>
-                  <Utensils size={18} className="text-amber-600 shrink-0 mt-0.5" />
+                <div className={`flex items-start gap-3 rounded-xl p-3 ${activeFilter === '🍲 Gastronomia' ? 'bg-amber-100 border border-amber-200' : 'bg-slate-50 border border-slate-100'}`}>
+                  <Utensils size={18} className={`${activeFilter === '🍲 Gastronomia' ? 'text-amber-600' : 'text-slate-400'} shrink-0 mt-0.5`} />
                   <p className="text-xs text-slate-800 leading-relaxed"><b>Jedzenie:</b> {trail.food}</p>
                 </div>
               </div>
@@ -489,7 +491,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
         </div>
 
         {/* PRAWA KOLUMNA: Mapka */}
-        <div className={`w-full md:w-1/2 lg:w-7/12 relative bg-emerald-50 rounded-none md:rounded-3xl border border-emerald-200 overflow-hidden shadow-inner flex flex-col min-h-[500px] h-full ${!isMapVisibleOnMobile ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-1/2 lg:w-8/12 relative bg-emerald-50 rounded-none md:rounded-3xl border border-emerald-200 overflow-hidden shadow-inner flex flex-col min-h-[500px] h-full ${!isMapVisibleOnMobile ? 'hidden md:flex' : 'flex'}`}>
           <DynamicLeafletMap 
              trails={filteredTrails} 
              activeFilter={activeFilter} 
@@ -537,11 +539,11 @@ function ChatAssistantView() {
       const isVercel = window.location.hostname.includes('vercel.app');
       let reply = "";
       
-      const contextData = TRAILS_DATA.map(t => `${t.name} (Lokalizacja: ${t.location}, Jedzenie/Schroniska: ${t.food})`).join('; ');
+      const contextData = TRAILS_DATA.map(t => `${t.name} (Lokalizacja: ${t.location}, Jedzenie/Restauracje: ${t.food})`).join('; ');
       const systemInstruction = `Jesteś bardzo pomocnym przewodnikiem turystycznym po Beskidach (Wisła, Ustroń, Szczyrk, Brenna, Istebna).
 Oto baza wiedzy z Twojej aplikacji: ${contextData}.
 WAŻNE OGRANICZENIE: Jesteś tylko czatem tekstowym. NIE MASZ dostępu do klikania na ekranie ani pokazywania miejsc na interaktywnej mapie. 
-Jeśli użytkownik prosi "pokaż na mapie", odpowiedz opisowo (np. "Wejdź w zakładkę Szlaki i Mapa, znajdziesz to miejsce obok...").
+Jeśli użytkownik prosi "pokaż na mapie", odpowiedz opisowo (np. "Wejdź w zakładkę Mapa i Szlaki, znajdziesz to miejsce obok...").
 Zawsze odpowiadaj krótko i przyjaźnie. Pytanie turysty: ${msg}`;
 
       if (isVercel) {
@@ -651,7 +653,7 @@ function AIPlannerView({ onSavePlan }) {
 
       setGeneratedPlan({
         title: `Twój idealny wyjazd (${preferences.days} dni)`,
-        description: preferences.companions === 'kids' ? "Wybrałem trasy spacerowe i pełne atrakcji dla najmłodszych." : "Oto optymalny plan obejmujący najciekawsze szlaki i schroniska Beskidu Śląskiego.",
+        description: preferences.companions === 'kids' ? "Wybrałem trasy spacerowe i pełne atrakcji dla najmłodszych." : "Oto optymalny plan obejmujący najciekawsze szlaki Beskidu Śląskiego.",
         days: selectedTrails
       });
       setIsGenerating(false);
@@ -671,7 +673,7 @@ function AIPlannerView({ onSavePlan }) {
         {step === 1 && (
           <div className="space-y-8 animate-in fade-in">
             <div>
-              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><CalendarDays size={20} className="text-emerald-500"/> Ile dni spędzisz w okolicy?</h3>
+              <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><CalendarDays size={20} className="text-emerald-500"/> Ile dni spędzisz w górach?</h3>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
                   <button key={num} onClick={() => setPreferences({...preferences, days: num})} className={`py-3 rounded-xl font-bold border-2 transition-all ${preferences.days === num ? 'border-emerald-500 bg-emerald-50 text-emerald-700 shadow-sm' : 'border-slate-100 bg-white text-slate-500 hover:border-slate-300'}`}>{num}</button>
@@ -808,7 +810,7 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
         } else {
             const apiKey = ""; 
             const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`;
-            const localPrompt = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic landscape in the Beskidy mountains, vibrant colors, nature.`;
+            const localPrompt = `A beautiful artistic masterpiece painting of ${aiPrompt}. Scenic mountain landscape in the Beskidy mountains, vibrant colors, nature.`;
             const fallbackRes = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -889,12 +891,12 @@ function JournalView({ savedTrips, activeTrip, setActiveTrip, onAddMedia }) {
 
                   <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-6 md:p-8 border border-indigo-100 relative overflow-hidden shadow-inner">
                       <div className="absolute right-0 top-0 opacity-10 translate-x-4 -translate-y-4"><Paintbrush size={160} /></div>
-                      <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz z Beskidów (AI)</h3>
-                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś na szlaku, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
+                      <h3 className="font-bold text-indigo-900 mb-2 text-xl flex items-center gap-2 relative z-10"><Sparkles size={24} className="text-indigo-500" /> Malarz z Podkarpacia (AI)</h3>
+                      <p className="text-sm text-indigo-700 mb-6 max-w-xl relative z-10 leading-relaxed">Opisz co widziałeś podczas spaceru, a sztuczna inteligencja wygeneruje piękny obraz z tej chwili wprost do Twojej galerii!</p>
                       <div className="flex flex-col md:flex-row gap-3 relative z-10">
                           <input 
                               value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} 
-                              placeholder="Np. jaszczurka na szlaku na Klimczok..." 
+                              placeholder="Np. sarna we mgle w lesie..." 
                               className="flex-1 rounded-xl px-5 py-4 outline-none border border-indigo-200 focus:border-indigo-400 bg-white/80 backdrop-blur font-medium"
                               onKeyPress={e => e.key === 'Enter' && handleGenerateAI()}
                           />
