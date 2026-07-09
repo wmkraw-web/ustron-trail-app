@@ -4,23 +4,18 @@ import {
   Coffee, TreePine, Mountain, Plus, Loader2, Send,
   User, Sun, CloudRain, Train, Eye, List, X,
   CalendarDays, LogOut, Bell, PhoneCall, AlertTriangle, ChevronRight, Filter,
-  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2, RefreshCw
+  Video, Image as ImageIcon, Paintbrush, PlayCircle, Upload, Film, ArrowLeft, Utensils, Activity, MessageCircle, Lock, Minus, Maximize, Navigation2, RefreshCw,
+  Cloud, CloudSnow, CloudLightning, Wind, Thermometer
 } from 'lucide-react';
 
-export const TRAILS_DATA = [
-  { id: 1, location: "Ustroń", name: "Czantoria Wielka z Polany", color: "bg-red-500", distance: "3.5 km", time: "1h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Ustroń Polana'.", food: "Koliba na Polanie Stokłosica", description: "Klasyczne podejście na najwyższy szczyt Ustronia.", lat: 49.679, lng: 18.791, pois: ['Polana Stokłosica', 'Koliba'], familyFriendly: false },
-  { id: 2, location: "Ustroń", name: "Równica z Centrum", color: "bg-yellow-400", distance: "4.2 km", time: "1h 30m", difficulty: "Łatwa", elevation: "380 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Gościniec Równica, Zbójnicka Chata", description: "Przyjemny szlak, idealny dla rodzin z dziećmi.", lat: 49.713, lng: 18.841, pois: ['Leśny Park Niespodzianek'], familyFriendly: true },
-  { id: 3, location: "Ustroń", name: "Piramidy na Zawodziu", color: "bg-blue-500", distance: "2.5 km", time: "0h 45m", difficulty: "Bardzo Łatwa", elevation: "120 m", transport: "Pociąg do 'Ustroń Zdrój'.", food: "Karczma Ustronianka", description: "Spacer szlakiem architektury po słynnych ustronskich piramidach.", lat: 49.715, lng: 18.825, pois: ['Pijalnia Wód', 'Punkt Widokowy'], familyFriendly: true },
-  { id: 4, location: "Wisła", name: "Barania Góra (Białą Wisełką)", color: "bg-blue-500", distance: "6.5 km", time: "2h 30m", difficulty: "Średnia", elevation: "620 m", transport: "Autobus (Wisła Czarne Fojtula).", food: "Brak gastronomii na szlaku - weź prowiant!", description: "Szlak wzdłuż potoku. Prowadzi przez Kaskady Rodła.", lat: 49.610, lng: 19.000, pois: ['Kaskady Rodła'], familyFriendly: false },
-  { id: 5, location: "Wisła", name: "Trzy Kopce Wiślańskie", color: "bg-yellow-400", distance: "4.8 km", time: "1h 45m", difficulty: "Łatwa", elevation: "350 m", transport: "Pociąg do 'Wisła Uzdrowisko'.", food: "Telesforówka (słynne wypieki)", description: "Widokowa trasa z przerwą w Telesforówce.", lat: 49.654, lng: 18.859, pois: ['Telesforówka'], familyFriendly: true },
-  { id: 6, location: "Szczyrk", name: "Skrzyczne", color: "bg-blue-500", distance: "5.2 km", time: "2h 15m", difficulty: "Trudna", elevation: "700 m", transport: "Autobus 'Szczyrk Centrum'.", food: "Schronisko PTTK Skrzyczne", description: "Wymagające podejście na najwyższy szczyt Beskidu Śląskiego.", lat: 49.684, lng: 19.030, pois: ['Schronisko PTTK'], familyFriendly: false },
-  { id: 7, location: "Szczyrk", name: "Malinowska Skała", color: "bg-red-500", distance: "4.0 km", time: "1h 20m", difficulty: "Łatwa", elevation: "220 m", transport: "Autobus 'Przełęcz Salmopolska'.", food: "Najbliżej: Schronisko na Skrzycznem", description: "Widokowy szlak grzbietowy z formacją skalną.", lat: 49.664, lng: 19.006, pois: ['Malinowska Skała'], familyFriendly: true },
-  { id: 8, location: "Brenna", name: "Błatnia z Centrum", color: "bg-green-500", distance: "5.5 km", time: "2h 00m", difficulty: "Średnia", elevation: "500 m", transport: "Autobus do 'Brenna Centrum'.", food: "Ranczo Błatnia, Schronisko PTTK", description: "Spokojniejsza trasa prowadząca na rozległą polanę.", lat: 49.736, lng: 18.914, pois: ['Ranczo Błatnia'], familyFriendly: false },
-  { id: 9, location: "Wisła", name: "Soszów Wielki", color: "bg-blue-500", distance: "7.5 km", time: "2h 45m", difficulty: "Średnia", elevation: "450 m", transport: "Pociąg do 'Wisła Jawornik'.", food: "Schronisko na Soszowie, Lepiarzówka", description: "Pętla obok schroniska na Soszowie z pięknymi panoramami.", lat: 49.638, lng: 18.818, pois: ['Schronisko Soszów'], familyFriendly: true },
-  { id: 10, location: "Szczyrk", name: "Klimczok przez Szyndzielnię", color: "bg-yellow-400", distance: "6.8 km", time: "2h 30m", difficulty: "Średnia", elevation: "550 m", transport: "Autobus MZK z Bielska.", food: "Schronisko Klimczok, Szyndzielnia", description: "Klasyk z Bielska/Szczyrku z opcją wjazdu gondolą.", lat: 49.733, lng: 19.014, pois: ['Schronisko Klimczok', 'Kolej Szyndzielnia'], familyFriendly: true },
-  { id: 11, location: "Istebna", name: "Złoty Groń", color: "bg-yellow-400", distance: "2.2 km", time: "0h 40m", difficulty: "Łatwa", elevation: "150 m", transport: "Autobus do 'Istebna Centrum'.", food: "Karczmy i restauracje w Istebnej", description: "Uroczy spacer grzbietem z widokiem na Trójwieś.", lat: 49.576, lng: 18.895, pois: ['Punkt Widokowy'], familyFriendly: true },
-  { id: 12, location: "Wisła", name: "Stożek Wielki z Łabajowa", color: "bg-green-500", distance: "3.8 km", time: "1h 30m", difficulty: "Średnia", elevation: "420 m", transport: "Pociąg do 'Wisła Głębce'.", food: "Schronisko PTTK na Stożku", description: "Dojście do najstarszego schroniska w Beskidzie Śląskim.", lat: 49.605, lng: 18.822, pois: ['Schronisko'], familyFriendly: false }
-];
+import { TRAILS_DATA } from './data/trailsData';
+
+const isValidLatLng = (lat, lng) => {
+  if (lat === null || lat === undefined || lng === null || lng === undefined) return false;
+  const fLat = parseFloat(lat);
+  const fLng = parseFloat(lng);
+  return !isNaN(fLat) && !isNaN(fLng) && isFinite(fLat) && isFinite(fLng);
+};
 
 function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, onAddTrip, isActive }) {
   const mapRef = useRef(null);
@@ -72,7 +67,11 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
       // Rozwiązuje problem z białym tłem mapy, gdy kontener jest odkrywany po kliknięciu.
       const resizeObserver = new ResizeObserver(() => {
         if (mapInstance.current) {
-          mapInstance.current.invalidateSize();
+          try {
+            mapInstance.current.invalidateSize();
+          } catch (e) {
+            console.warn("Could not invalidate map size inside ResizeObserver:", e);
+          }
         }
       });
       resizeObserver.observe(mapRef.current);
@@ -87,24 +86,178 @@ function DynamicLeafletMap({ trails, activeFilter, selectedPin, setSelectedPin, 
   useEffect(() => {
     if (mapInstance.current) {
         setTimeout(() => {
-            mapInstance.current.invalidateSize();
+            if (mapInstance.current) {
+                try {
+                    mapInstance.current.invalidateSize();
+                } catch (e) {
+                    console.warn("Could not invalidate map size in setTimeout:", e);
+                }
+                
+                // Automatyczne pozycjonowanie kamery po aktywacji mapy
+                if (selectedPin && isValidLatLng(selectedPin.lat, selectedPin.lng)) {
+                  try {
+                    const pinLat = parseFloat(selectedPin.lat);
+                    const pinLng = parseFloat(selectedPin.lng);
+                    mapInstance.current.flyTo([pinLat, pinLng], 13.5, { duration: 1.2 });
+                  } catch (e) {
+                    console.warn("Could not fly to pin in setTimeout:", e);
+                  }
+                } else if (trails.length > 0 && markersLayer.current && markersLayer.current.getLayers().length > 0) {
+                  try {
+                    const bounds = markersLayer.current.getBounds();
+                    if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
+                      const sw = bounds.getSouthWest();
+                      const ne = bounds.getNorthEast();
+                      if (sw && ne && !isNaN(sw.lat) && !isNaN(sw.lng) && !isNaN(ne.lat) && !isNaN(ne.lng) && isFinite(sw.lat) && isFinite(sw.lng) && isFinite(ne.lat) && isFinite(ne.lng)) {
+                        mapInstance.current.fitBounds(bounds, { padding: [50, 50] });
+                      }
+                    }
+                  } catch (e) {
+                    console.warn("Could not fit bounds after active transition:", e);
+                  }
+                }
+            }
         }, 350); 
     }
   }, [isActive]);
 
+  // --- DYNAMICZNE RENDEROWANIE TRAS I SZLAKÓW (MARKERY + POLILINIE) ---
   useEffect(() => {
-    if (mapInstance.current && selectedPin) {
-      mapInstance.current.flyTo([selectedPin.lat, selectedPin.lng], 14, { duration: 1.5 });
+    if (!isLoaded || !mapInstance.current || !markersLayer.current) return;
+    const L = window.L;
+    
+    // Wyczyszczenie starej warstwy
+    markersLayer.current.clearLayers();
+
+    trails.forEach(trail => {
+      if (!trail || !isValidLatLng(trail.lat, trail.lng)) {
+        return;
+      }
+
+      // Kolor markera na podstawie trudności szlaku
+      const diffColor = 
+        trail.difficulty === 'Trudna' ? 'bg-red-500' :
+        (trail.difficulty === 'Średnia' ? 'bg-amber-500' : 'bg-emerald-500');
+
+      // Wybór emoji ikony
+      let emoji = '⛰️';
+      if (trail.name && (trail.name.toLowerCase().includes('schronisko') || trail.food?.toLowerCase().includes('schronisko'))) {
+        emoji = '🏠';
+      } else if (trail.familyFriendly) {
+        emoji = '👶';
+      } else if (trail.name && (trail.name.toLowerCase().includes('jezioro') || trail.name.toLowerCase().includes('wodospad'))) {
+        emoji = '💧';
+      } else if (trail.difficulty === 'Łatwa' || trail.difficulty === 'Spacer') {
+        emoji = '🌲';
+      }
+
+      // Sprawdzenie czy ten pin jest obecnie zaznaczony
+      const isSelected = selectedPin && selectedPin.id === trail.id;
+
+      // Niestandardowy HTML marker
+      const displayName = trail.name ? trail.name.split(' ')[0] : 'Szlak';
+      const markerHtml = `
+        <div class="relative flex items-center justify-center">
+          <div class="w-9 h-9 ${diffColor} text-white rounded-full flex items-center justify-center border-2 ${isSelected ? 'border-indigo-600 scale-125 ring-4 ring-indigo-300' : 'border-white'} shadow-xl transform transition-all duration-300 hover:scale-125 hover:rotate-12 cursor-pointer z-50">
+            <span class="text-sm">${emoji}</span>
+          </div>
+          <div class="absolute top-10 bg-slate-900 text-white text-[10px] px-2 py-0.5 rounded-md font-bold shadow-md opacity-90 whitespace-nowrap pointer-events-none border border-slate-700 z-50">
+            ${displayName}...
+          </div>
+        </div>
+      `;
+
+      const icon = L.divIcon({
+        html: markerHtml,
+        className: 'custom-div-icon',
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
+      });
+
+      const marker = L.marker([parseFloat(trail.lat), parseFloat(trail.lng)], { icon })
+        .on('click', () => {
+          setSelectedPin(trail);
+        });
+
+      markersLayer.current.addLayer(marker);
+
+      // Renderowanie polilinii ścieżki
+      if (trail.path && Array.isArray(trail.path)) {
+        const validPath = trail.path
+          .filter(coord => Array.isArray(coord) && coord.length === 2 && isValidLatLng(coord[0], coord[1]))
+          .map(coord => [parseFloat(coord[0]), parseFloat(coord[1])]);
+        if (validPath.length >= 2) {
+          let polyColor = '#10b981'; // domyślny zielony
+          if (trail.color) {
+            if (trail.color.includes('red')) polyColor = '#ef4444';
+            else if (trail.color.includes('yellow')) polyColor = '#eab308';
+            else if (trail.color.includes('blue')) polyColor = '#3b82f6';
+            else if (trail.color.includes('purple')) polyColor = '#8b5cf6';
+            else if (trail.color.includes('orange')) polyColor = '#f97316';
+            else if (trail.color.includes('slate')) polyColor = '#475569';
+            else if (trail.color.includes('emerald')) polyColor = '#10b981';
+            else if (trail.color.includes('indigo')) polyColor = '#4f46e5';
+            else if (trail.color.includes('teal')) polyColor = '#0d9488';
+          }
+
+          const polyline = L.polyline(validPath, {
+            color: polyColor,
+            weight: isSelected ? 8 : 4,
+            opacity: isSelected ? 0.95 : 0.65,
+            dashArray: isSelected ? null : '5, 8'
+          });
+
+          polyline.on('click', () => {
+            setSelectedPin(trail);
+          });
+
+          markersLayer.current.addLayer(polyline);
+        }
+      }
+    });
+
+    // Automatyczne pozycjonowanie kamery (tylko jeśli kontener jest widoczny)
+    const isVisible = mapRef.current && (mapRef.current.offsetWidth > 0 || mapRef.current.offsetHeight > 0);
+    if (isVisible) {
+      if (selectedPin && isValidLatLng(selectedPin.lat, selectedPin.lng)) {
+        try {
+          const pinLat = parseFloat(selectedPin.lat);
+          const pinLng = parseFloat(selectedPin.lng);
+          mapInstance.current.flyTo([pinLat, pinLng], 13.5, { duration: 1.2 });
+        } catch (e) {
+          console.warn("Could not fly to pin on transition:", e);
+        }
+      } else if (trails.length > 0 && markersLayer.current && markersLayer.current.getLayers().length > 0) {
+        try {
+          const bounds = markersLayer.current.getBounds();
+          if (bounds && typeof bounds.isValid === 'function' && bounds.isValid()) {
+            const sw = bounds.getSouthWest();
+            const ne = bounds.getNorthEast();
+            if (sw && ne && !isNaN(sw.lat) && !isNaN(sw.lng) && !isNaN(ne.lat) && !isNaN(ne.lng) && isFinite(sw.lat) && isFinite(sw.lng) && isFinite(ne.lat) && isFinite(ne.lng)) {
+              mapInstance.current.fitBounds(bounds, { padding: [50, 50] });
+            }
+          }
+        } catch (e) {
+          console.warn("Could not fit bounds on load:", e);
+        }
+      }
     }
-  }, [selectedPin]);
+  }, [isLoaded, trails, selectedPin, isActive]);
 
   const locateMe = () => {
     setLocError("");
     if (navigator.geolocation && mapInstance.current) {
       navigator.geolocation.getCurrentPosition(pos => {
         const { latitude, longitude } = pos.coords;
-        mapInstance.current.flyTo([latitude, longitude], 14);
-        window.L.marker([latitude, longitude]).addTo(mapInstance.current).bindPopup('Jesteś tutaj!').openPopup();
+        if (isValidLatLng(latitude, longitude)) {
+          const locLat = parseFloat(latitude);
+          const locLng = parseFloat(longitude);
+          mapInstance.current.flyTo([locLat, locLng], 14);
+          window.L.marker([locLat, locLng]).addTo(mapInstance.current).bindPopup('Jesteś tutaj!').openPopup();
+        } else {
+          setLocError("Nieprawidłowa lokalizacja GPS");
+          setTimeout(() => setLocError(""), 3000);
+        }
       }, () => {
         setLocError("Brak dostępu do GPS");
         setTimeout(() => setLocError(""), 3000);
@@ -314,7 +467,7 @@ export default function App() {
         {activeTab === 'trails' && <TrailsView onAddTrip={handleAddTrip} activeFilter={activeFilter} setActiveFilter={setActiveFilter} />}
         {activeTab === 'planner' && <AIPlannerView onSavePlan={handleSaveAIPlan} />}
         {activeTab === 'chat' && <ChatAssistantView />}
-        {activeTab === 'journal' && <JournalView savedTrips={savedTrips} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
+        {activeTab === 'journal' && <JournalView savedTrips={savedTrips} setSavedTrips={setSavedTrips} isPro={true} activeTrip={activeTrip} setActiveTrip={setActiveTrip} onAddMedia={handleAddMedia} />}
       </main>
 
       {/* --- MOBILE BOTTOM NAV --- */}
@@ -331,36 +484,225 @@ export default function App() {
 }
 
 function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
+  const [weatherData, setWeatherData] = useState(null);
+  const [loadingWeather, setLoadingWeather] = useState(true);
+
+  useEffect(() => {
+    // Współrzędne dla Ustronia/Wisły: szerokość 49.72, długość 18.81
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=49.72&longitude=18.81&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Europe%2FWarsaw')
+      .then(res => res.json())
+      .then(data => {
+        setWeatherData(data);
+        setLoadingWeather(false);
+      })
+      .catch(err => {
+        console.error("Błąd pobierania pogody:", err);
+        setLoadingWeather(false);
+      });
+  }, []);
+
+  const getWeatherDetails = (code) => {
+    // Kody pogodowe WMO (https://open-meteo.com/en/docs)
+    if (code === 0) return { label: "Słonecznie", icon: <Sun className="text-yellow-400 animate-pulse" size={40} /> };
+    if (code >= 1 && code <= 3) return { label: "Zachmurzenie umiarkowane", icon: <Cloud className="text-teal-200" size={40} /> };
+    if (code >= 45 && code <= 48) return { label: "Mgła / Zamglenie", icon: <Cloud className="text-slate-300" size={40} /> };
+    if (code >= 51 && code <= 57) return { label: "Mżawka", icon: <CloudRain className="text-cyan-200 animate-bounce" size={40} /> };
+    if (code >= 61 && code <= 67) return { label: "Opady deszczu", icon: <CloudRain className="text-cyan-300 animate-bounce" size={40} /> };
+    if (code >= 71 && code <= 77) return { label: "Opady śniegu", icon: <CloudSnow className="text-white animate-pulse" size={40} /> };
+    if (code >= 80 && code <= 82) return { label: "Przelotny deszcz", icon: <CloudRain className="text-blue-300 animate-bounce" size={40} /> };
+    if (code >= 85 && code <= 86) return { label: "Opady śniegu / Krup", icon: <CloudSnow className="text-blue-100" size={40} /> };
+    if (code >= 95 && code <= 99) return { label: "Burza z piorunami", icon: <CloudLightning className="text-amber-400 animate-pulse" size={40} /> };
+    return { label: "Zmienna aura", icon: <Sun className="text-yellow-300" size={40} /> };
+  };
+
+  const getDayName = (dateStr) => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('pl-PL', { weekday: 'short' });
+    } catch (e) {
+      return "Jutro";
+    }
+  };
+
+  const currentCode = weatherData?.current?.weather_code ?? 0;
+  const currentTemp = weatherData?.current?.temperature_2m ?? 18;
+  const apparentTemp = weatherData?.current?.apparent_temperature ?? 17;
+  const humidity = weatherData?.current?.relative_humidity_2m ?? 65;
+  const windSpeed = weatherData?.current?.wind_speed_10m ?? 10;
+  const weather = getWeatherDetails(currentCode);
+
+  // Inteligentne rekomendacje w zależności od warunków na zewnątrz
+  const getRecommendation = (code, temp, wind) => {
+    if (code >= 95) {
+      return { 
+        text: "⚡ Niebezpieczeństwo! Nadciągają burze z piorunami. Pozostań w dolinach, kategorycznie unikaj otwartych grzbietów i metalowych łańcuchów.", 
+        type: "danger",
+        badge: "ZAGROŻENIE",
+        trailId: 3, // Piramidy (bezpieczna dolina)
+        trailName: "Piramidy na Zawodziu (Ustroń)"
+      };
+    }
+    if (code >= 61 && code <= 67) {
+      return { 
+        text: "🌧️ Opady deszczu. Szlaki leśne są śliskie i błotniste. Zabierz odzież membranową, pokrowiec na plecak i dobre buty trekkingowe z protektorem.", 
+        type: "warning",
+        badge: "DESZCZOWO",
+        trailId: 4, // Leśny Park Niespodzianek
+        trailName: "Leśny Park Niespodzianek"
+      };
+    }
+    if (code >= 71 && code <= 86) {
+      return { 
+        text: "❄️ Uwaga na śnieg i oblodzenie! W wyższych partiach warunki zimowe. Niezbędne raczki turystyczne, stuptuty i termos z gorącą herbatą.", 
+        type: "warning",
+        badge: "WARUNKI ZIMOWE",
+        trailId: 14, // Ochodzita (krótkie podejście)
+        trailName: "Ochodzita w Koniakowie"
+      };
+    }
+    if (wind > 25) {
+      return { 
+        text: "💨 Porywisty wiatr na graniach. Temperatura odczuwalna jest znacznie niższa niż rzeczywista. Rekomendujemy osłonięty lasem spacer dolinny.", 
+        type: "warning",
+        badge: "WICHURA",
+        trailId: 16, // Wodospad Szum
+        trailName: "Wodospad Szum i Dolina Czadeczki"
+      };
+    }
+    if (temp > 25) {
+      return { 
+        text: "☀️ Bardzo ciepły dzień! Na nasłonecznionych grzbietach grozi przegrzanie. Weź min. 2 litry płynów, okulary przeciwsłoneczne i nakrycie głowy.", 
+        type: "info",
+        badge: "UPALNIE",
+        trailId: 9, // Jezioro Czerniańskie (blisko wody)
+        trailName: "Jezioro Czerniańskie (Wisła)"
+      };
+    }
+    if (temp < 6) {
+      return { 
+        text: "🥶 Niska temperatura. Ubierz się warstwowo ('na cebulkę') i zaplanuj przerwę na rozgrzanie w schronisku turystycznym.", 
+        type: "info",
+        badge: "CHŁODNO",
+        trailId: 2, // Równica z schroniskiem
+        trailName: "Równica z Centrum"
+      };
+    }
+    return { 
+      text: "🌲 Doskonała, stabilna pogoda w Beskidach! Świetny czas na zdobywanie najwyższych partii, np. Skrzycznego czy pasma Czantorii.", 
+      type: "success",
+      badge: "IDEALNE WARUNKI",
+      trailId: 1, // Czantoria
+      trailName: "Czantoria Wielka z Polany"
+    };
+  };
+
+  const recommendation = getRecommendation(currentCode, currentTemp, windSpeed);
+
+  // Pobierz polecany szlak na dziś na podstawie rekomendacji pogodowej
+  const recommendedTrail = TRAILS_DATA.find(t => t.id === recommendation.trailId) || TRAILS_DATA[0];
+
   return (
     <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-6 md:space-y-8 animate-in fade-in duration-500">
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <div className="md:col-span-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl p-6 md:p-8 text-white shadow-xl flex justify-between items-center relative overflow-hidden">
-          <div className="absolute right-0 top-0 opacity-10 scale-150 transform translate-x-1/4 -translate-y-1/4"><Sun size={200} /></div>
-          <div className="relative z-10">
-            <h2 className="text-2xl md:text-4xl font-bold mb-1">Dzień dobry!</h2>
-            <p className="text-blue-100 mb-6 text-sm md:text-base">Idealna pogoda na zdobycie szczytu.</p>
-            <div className="flex items-end gap-4">
-              <span className="text-5xl md:text-6xl font-black">18°C</span>
-              <div className="pb-1 text-blue-100 text-sm">
-                <p>Ustroń / Wisła</p>
-                <p>Słonecznie, wiatr 10 km/h</p>
+      {/* Sekcja Pogody Live i Rekomendacji */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Karta pogody */}
+        <div className="lg:col-span-2 bg-gradient-to-br from-emerald-800 to-teal-950 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden flex flex-col justify-between min-h-[280px]">
+          <div className="absolute right-0 top-0 opacity-10 scale-150 transform translate-x-1/4 -translate-y-1/4">
+            <Sun size={220} />
+          </div>
+          
+          <div className="relative z-10 flex flex-col h-full justify-between gap-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <span className="bg-emerald-700/50 text-emerald-200 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider">Warunki Beskidy (Live)</span>
+                <h2 className="text-2xl md:text-3xl font-black mt-2">Ustroń / Wisła / Szczyrk</h2>
+                <p className="text-emerald-100/80 text-sm mt-1">{weather.label} • Odczuwalna {apparentTemp}°C</p>
               </div>
+              <div className="bg-white/10 p-3 rounded-2xl backdrop-blur-sm">
+                {weather.icon}
+              </div>
+            </div>
+
+            <div className="flex items-end justify-between flex-wrap gap-4 pt-4 border-t border-emerald-700/50">
+              <div className="flex items-end gap-3">
+                <span className="text-5xl md:text-6xl font-black">{Math.round(currentTemp)}°C</span>
+                <div className="pb-1 text-emerald-200 text-xs font-medium">
+                  <p>💨 Wiatr: {windSpeed} km/h</p>
+                  <p>💧 Wilgotność: {humidity}%</p>
+                </div>
+              </div>
+
+              {/* Dynamiczna prognoza 3-dniowa */}
+              {weatherData && (
+                <div className="flex gap-4 bg-black/10 backdrop-blur-sm p-3 rounded-2xl border border-white/10">
+                  {weatherData.daily.time.slice(1, 4).map((time, index) => {
+                    const tempMax = weatherData.daily.temperature_2m_max[index + 1];
+                    const tempMin = weatherData.daily.temperature_2m_min[index + 1];
+                    const code = weatherData.daily.weather_code[index + 1];
+                    const dayDetails = getWeatherDetails(code);
+                    return (
+                      <div key={time} className="flex flex-col items-center text-center px-1">
+                        <span className="text-[10px] font-bold text-emerald-300 uppercase">{getDayName(time)}</span>
+                        <span className="my-1 scale-75 transform">{dayDetails.icon}</span>
+                        <span className="text-xs font-black">{Math.round(tempMax)}°/{Math.round(tempMin)}°</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        <div className="bg-red-50 rounded-3xl p-6 border border-red-100 flex flex-col justify-center relative overflow-hidden group">
-          <div className="absolute -right-6 -top-6 bg-red-100 w-24 h-24 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
-          <AlertTriangle size={32} className="text-red-500 mb-4 relative z-10" />
-          <h3 className="font-bold text-red-900 text-lg relative z-10">GOPR Bezpieczeństwo</h3>
-          <p className="text-red-700 text-sm mb-4 relative z-10">Zapisz numery alarmowe w górach.</p>
-          <button className="bg-red-600 text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-700 transition shadow-md relative z-10">
-            <PhoneCall size={18} /> 601 100 300
-          </button>
+        {/* Karta bezpieczeństwa i GOPR */}
+        <div className="flex flex-col gap-4">
+          <div className={`rounded-3xl p-5 border flex flex-col justify-between h-full relative overflow-hidden shadow-md transition-all duration-300
+            ${recommendation.type === 'danger' ? 'bg-rose-50 border-rose-200 text-rose-950' :
+              recommendation.type === 'warning' ? 'bg-amber-50 border-amber-200 text-amber-950' :
+              recommendation.type === 'info' ? 'bg-sky-50 border-sky-200 text-sky-950' :
+              'bg-emerald-50 border-emerald-200 text-emerald-950'}`}>
+            
+            <div className="flex items-start gap-3">
+              <div className={`p-2 rounded-xl text-white ${recommendation.type === 'danger' ? 'bg-rose-600' : recommendation.type === 'warning' ? 'bg-amber-500' : recommendation.type === 'info' ? 'bg-sky-500' : 'bg-emerald-600'}`}>
+                <Activity size={20} className="animate-pulse" />
+              </div>
+              <div>
+                <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${recommendation.type === 'danger' ? 'bg-rose-200 text-rose-800' : recommendation.type === 'warning' ? 'bg-amber-200 text-amber-800' : recommendation.type === 'info' ? 'bg-sky-200 text-sky-800' : 'bg-emerald-200 text-emerald-800'}`}>
+                  {recommendation.badge}
+                </span>
+                <h4 className="font-bold text-sm uppercase tracking-wider mt-2">Rekomendacja GOPR</h4>
+                <p className="text-xs font-medium mt-1 leading-relaxed text-slate-700">{recommendation.text}</p>
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => navigateToTrailsWithFilter(recommendedTrail.location)}
+              className="mt-4 bg-slate-950 text-white hover:bg-slate-800 text-xs py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition"
+            >
+              Rekomendowany region: {recommendedTrail.location} <ChevronRight size={14} />
+            </button>
+          </div>
+
+          <div className="bg-rose-50 rounded-3xl p-4 border border-rose-100 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute -right-6 -top-6 bg-rose-100 w-20 h-20 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
+            <div className="flex items-center gap-3 mb-2 relative z-10">
+              <AlertTriangle size={24} className="text-red-500" />
+              <h3 className="font-bold text-red-900 text-sm">Górskie Pogotowie GOPR</h3>
+            </div>
+            <p className="text-slate-600 text-xs mb-3 relative z-10 font-medium">Wpisz do telefonu numer ratunkowy w górach:</p>
+            <button 
+              onClick={() => window.open('tel:601100300')}
+              className="bg-red-600 hover:bg-red-700 text-white py-2.5 rounded-xl text-xs font-black flex items-center justify-center gap-2 transition shadow-md relative z-10"
+            >
+              <PhoneCall size={14} /> 601 100 300
+            </button>
+          </div>
         </div>
       </div>
 
+      {/* Szybkie Menu */}
       <div>
         <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">Szybkie menu</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -371,26 +713,67 @@ function HomeView({ setActiveTab, navigateToTrailsWithFilter }) {
         </div>
       </div>
 
+      {/* Polecane na dzisiejsze warunki (Dynamiczne!) */}
       <div>
-        <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2"><Heart size={20} className="text-rose-500" /> Polecane na dzisiejsze warunki</h3>
+        <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2"><Heart size={20} className="text-rose-500 animate-pulse" /> Polecane na dzisiejsze warunki</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
-            <div className="h-40 md:h-48 bg-slate-200 rounded-2xl mb-4 overflow-hidden relative">
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent flex flex-col justify-end p-4">
-                 <span className="text-white font-black text-xl">Czantoria Wielka</span>
-                 <span className="text-slate-300 text-sm flex items-center gap-1"><MapPin size={14}/> Ustroń</span>
-               </div>
-               <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800" alt="Góry" className="w-full h-full object-cover" />
+          
+          {/* Propozycja 1 (Na podstawie pogody) */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between">
+            <div>
+              <div className="h-44 md:h-48 bg-slate-200 rounded-2xl mb-4 overflow-hidden relative">
+                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex flex-col justify-end p-4 z-10">
+                   <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full w-max uppercase tracking-wider mb-2">Wybór Przewodnika na Dziś</span>
+                   <span className="text-white font-black text-xl leading-tight">{recommendedTrail.name}</span>
+                   <span className="text-slate-300 text-xs flex items-center gap-1 mt-1"><MapPin size={12}/> {recommendedTrail.location}</span>
+                 </div>
+                 <img src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=800" alt="Góry" className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700" />
+              </div>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4 line-clamp-2">
+                {recommendedTrail.description}
+              </p>
             </div>
-            <div className="flex justify-between items-center text-sm text-slate-600 mb-4 font-medium">
-              <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><Navigation size={16} className="text-blue-500"/> 3.5 km</span>
-              <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><History size={16} className="text-amber-500"/> 1h 45m</span>
-              <span className="bg-red-100 text-red-700 px-2 py-1 rounded-lg">Czerwony szlak</span>
+            
+            <div>
+              <div className="flex justify-between items-center text-xs text-slate-600 mb-4 font-bold flex-wrap gap-2">
+                <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><Navigation size={14} className="text-blue-500"/> {recommendedTrail.distance}</span>
+                <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><History size={14} className="text-amber-500"/> {recommendedTrail.time}</span>
+                <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg">{recommendedTrail.difficulty}</span>
+              </div>
+              <button onClick={() => navigateToTrailsWithFilter(recommendedTrail.location)} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold transition">
+                Zobacz na Mapie
+              </button>
             </div>
-            <button onClick={() => navigateToTrailsWithFilter('Ustroń')} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition">
-              Zobacz na Mapie
-            </button>
           </div>
+
+          {/* Propozycja 2 (Uniwersalny klasyk z atrakcjami / schroniskiem) */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between">
+            <div>
+              <div className="h-44 md:h-48 bg-slate-200 rounded-2xl mb-4 overflow-hidden relative">
+                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 to-transparent flex flex-col justify-end p-4 z-10">
+                   <span className="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full w-max uppercase tracking-wider mb-2">Regionalny Klasyk</span>
+                   <span className="text-white font-black text-xl leading-tight">Urokliwa Równica z Zbójnicką Chatą</span>
+                   <span className="text-slate-300 text-xs flex items-center gap-1 mt-1"><MapPin size={12}/> Ustroń</span>
+                 </div>
+                 <img src="https://images.unsplash.com/photo-1501555088652-021faa106b9b?auto=format&fit=crop&q=80&w=800" alt="Góry szlak" className="w-full h-full object-cover transform hover:scale-110 transition-transform duration-700" />
+              </div>
+              <p className="text-xs text-slate-600 font-medium leading-relaxed mb-4 line-clamp-2">
+                Świetny szlak niezależnie od kaprysów pogody. Prowadzi do klimatycznego schroniska, skąd roztacza się niezrównana panorama pasma Czantorii.
+              </p>
+            </div>
+            
+            <div>
+              <div className="flex justify-between items-center text-xs text-slate-600 mb-4 font-bold flex-wrap gap-2">
+                <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><Navigation size={14} className="text-blue-500"/> 4.2 km</span>
+                <span className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg"><History size={14} className="text-amber-500"/> 1h 30m</span>
+                <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded-lg">Łatwa</span>
+              </div>
+              <button onClick={() => navigateToTrailsWithFilter('Ustroń')} className="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800 transition">
+                Zobacz na Mapie
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -402,7 +785,7 @@ function TrailsView({ onAddTrip, activeFilter, setActiveFilter }) {
   const [selectedPin, setSelectedPin] = useState(null);
   const [isMapVisibleOnMobile, setIsMapVisibleOnMobile] = useState(false); 
 
-  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Istebna', 'Brenna', '🍲 Gastronomia'];
+  const filters = ['Wszystkie', 'Ustroń', 'Wisła', 'Szczyrk', 'Brenna', 'Istebna', 'Bielsko-Biała', '🍲 Gastronomia'];
   
   const filteredTrails = TRAILS_DATA.filter(t => {
       if (activeFilter === 'Wszystkie') return true;

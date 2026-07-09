@@ -59,12 +59,18 @@ export default function TrailsView({ onAddTrip }) {
         <div className="flex-1 rounded-3xl overflow-hidden border-4 border-white shadow-lg relative z-0 min-h-[400px]">
           <MapContainer center={[49.65, 18.9]} zoom={11} className="w-full h-full z-0">
             <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-            {filteredTrails.map(t => (
-              <React.Fragment key={t.id}>
-                <Marker position={[t.lat, t.lng]} icon={customIcon} eventHandlers={{ click: () => setSelectedPin(t) }} />
-                <Polyline positions={t.path} pathOptions={{ color: t.lineColor, weight: 6, opacity: 0.8 }} />
-              </React.Fragment>
-            ))}
+            {filteredTrails.map(t => {
+              const hasValidCoords = t && typeof t.lat === 'number' && !isNaN(t.lat) && typeof t.lng === 'number' && !isNaN(t.lng);
+              const validPath = t.path && Array.isArray(t.path) 
+                ? t.path.filter(coord => Array.isArray(coord) && coord.length === 2 && typeof coord[0] === 'number' && !isNaN(coord[0]) && typeof coord[1] === 'number' && !isNaN(coord[1]))
+                : [];
+              return (
+                <React.Fragment key={t.id}>
+                  {hasValidCoords && <Marker position={[t.lat, t.lng]} icon={customIcon} eventHandlers={{ click: () => setSelectedPin(t) }} />}
+                  {validPath.length >= 2 && <Polyline positions={validPath} pathOptions={{ color: t.lineColor || '#10b981', weight: 6, opacity: 0.8 }} />}
+                </React.Fragment>
+              );
+            })}
           </MapContainer>
           
           <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm p-2 rounded-xl shadow-md z-[1000] text-[10px] font-bold text-gray-700">
